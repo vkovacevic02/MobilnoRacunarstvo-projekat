@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Travel App",
+    "slug": "travel-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#2E86AB"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#2E86AB"
+      }
+    },
+    "scheme": "travelapp",
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ]
+  }
+}
