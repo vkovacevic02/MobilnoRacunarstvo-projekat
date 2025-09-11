@@ -16,6 +16,8 @@ export interface Putovanje {
   nazivPutovanja: string;
   opis: string;
   lokacija: string;
+  slika?: string;
+  cena?: number;
   created_at: string;
   updated_at: string;
   aranzmani?: Aranzman[];

@@ -14,29 +14,46 @@ class PutovanjaSeeder extends Seeder
     {
         $putovanja = [
             [
-                'nazivPutovanja' => 'Putovanje u Pariz',
-                'opis' => 'Uživajte u čarima Pariza, gradu ljubavi i svetlosti.',
-                'lokacija' => 'Pariz, Francuska',
+                'nazivPutovanja' => 'Santorini',
+                'opis' => 'Uživajte u čarima grčkih ostrva sa predivnim zalaskom sunca.',
+                'lokacija' => 'Grčka',
+                'slika' => 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=400&h=300&fit=crop',
+                'cena' => 499.00,
             ],
             [
-                'nazivPutovanja' => 'Egzotično putovanje na Bali',
-                'opis' => 'Otkrijte rajske plaže i bogatu kulturu Balija.',
-                'lokacija' => 'Bali, Indonezija',
+                'nazivPutovanja' => 'Pariz',
+                'opis' => 'Grad ljubavi i svetlosti sa Eiffelovom kulom i bogatom kulturom.',
+                'lokacija' => 'Francuska',
+                'slika' => 'https://images.unsplash.com/photo-1471623432079-b009d30b6729?w=400&h=300&fit=crop',
+                'cena' => 559.00,
             ],
             [
-                'nazivPutovanja' => 'Avantura u Amazoniji',
-                'opis' => 'Istražite netaknutu prirodu i divlje životinje Amazona.',
-                'lokacija' => 'Amazon, Brazil',
+                'nazivPutovanja' => 'Zermatt',
+                'opis' => 'Alpsko skijalište sa predivnim pogledom na Matterhorn.',
+                'lokacija' => 'Švajcarska',
+                'slika' => 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+                'cena' => 799.00,
             ],
             [
-                'nazivPutovanja' => 'Kultura i istorija u Rimu',
-                'opis' => 'Posetite drevne znamenitosti i uživajte u italijanskoj kuhinji.',
-                'lokacija' => 'Rim, Italija',
+                'nazivPutovanja' => 'Dubai',
+                'opis' => 'Moderni grad sa najvišim neboderom na svetu i luksuznim shoppingom.',
+                'lokacija' => 'UAE',
+                'slika' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop',
+                'cena' => 649.00,
             ],
             [
-                'nazivPutovanja' => 'Skandinavska turneja',
-                'opis' => 'Otkrijte lepotu Norveške, Švedske i Danske.',
-                'lokacija' => 'Skandinavija',
+                'nazivPutovanja' => 'Barcelona',
+                'opis' => 'Grad Gaudija sa Sagrada Familijom i živopisnim ulicama.',
+                'lokacija' => 'Španija',
+                'slika' => 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=400&h=300&fit=crop',
+                'cena' => 399.00,
+            ],
+            [
+                'nazivPutovanja' => 'Maldivi',
+                'opis' => 'Tropski raj sa kristalno čistim morem i predivnim plažama.',
+                'lokacija' => 'Maldivi',
+                'slika' => 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+                'cena' => 1299.00,
             ]
         ];
 

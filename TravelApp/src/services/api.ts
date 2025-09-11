@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG } from '../constants/api';
-import { ApiResponse, AuthResponse, LoginRequest, RegisterRequest } from '../types';
+import { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, Putovanje } from '../types';
 
 class ApiService {
   private api: AxiosInstance;
@@ -110,6 +110,11 @@ class ApiService {
   async delete<T>(endpoint: string): Promise<T> {
     const response = await this.api.delete<ApiResponse<T>>(endpoint);
     return response.data.data;
+  }
+
+  // Domain methods
+  async getPutovanja(): Promise<Putovanje[]> {
+    return this.get<Putovanje[]>(API_CONFIG.ENDPOINTS.PUTOVANJA);
   }
 }
 

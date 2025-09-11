@@ -19,6 +19,8 @@ class PutovanjeResurs extends JsonResource
             'nazivPutovanja' => $this->nazivPutovanja,
             'opis' => $this->opis,
             'lokacija' => $this->lokacija,
+            'slika' => $this->slika,
+            'cena' => $this->cena,
         ];
     }
 }
