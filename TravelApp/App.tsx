@@ -31,6 +31,7 @@ export default function App() {
   const [showRegister, setShowRegister] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+
   const loadPutovanja = async () => {
     try {
       setLoading(true);
@@ -114,6 +115,7 @@ export default function App() {
     </TouchableOpacity>
   );
 
+
   // Ako je onboarding prikazan, prikaži onboarding
   if (showOnboarding) {
     return <OnboardingScreen onGetStarted={handleGetStarted} />;
@@ -161,6 +163,7 @@ export default function App() {
     );
   }
 
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -168,6 +171,7 @@ export default function App() {
         <View style={styles.header}>
           <Text style={styles.title}>Putovanja</Text>
           <Text style={styles.subtitle}>Pronađite svoju sledeću destinaciju</Text>
+          <Text style={styles.welcomeText}>Dobrodošli! Uspešno ste se prijavili.</Text>
         </View>
 
         <View style={styles.listHeaderRow}>
@@ -212,6 +216,7 @@ const styles = StyleSheet.create({
   header: { alignItems: 'center', marginBottom: Sizes.xl, paddingTop: Sizes.xxl },
   title: { fontSize: Sizes.fontSize.xxxl, fontWeight: 'bold', color: Colors.primary, marginBottom: Sizes.sm },
   subtitle: { fontSize: Sizes.fontSize.lg, color: Colors.textSecondary, textAlign: 'center' },
+  welcomeText: { fontSize: Sizes.fontSize.sm, color: Colors.success, textAlign: 'center', marginTop: Sizes.sm, fontWeight: 'bold' },
   listHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Sizes.md },
   sectionTitle: { fontSize: Sizes.fontSize.xl, fontWeight: 'bold', color: Colors.text, marginBottom: Sizes.md },
   reloadBtn: { backgroundColor: Colors.primary, paddingVertical: Sizes.xs, paddingHorizontal: Sizes.md, borderRadius: Sizes.radius.md },
