@@ -96,7 +96,9 @@ class ApiService {
 
   // Generic POST method
   async post<T>(endpoint: string, data?: any): Promise<T> {
+    console.log('API: POST poziv na', endpoint, 'sa podacima:', data);
     const response = await this.api.post<ApiResponse<T>>(endpoint, data);
+    console.log('API: POST odgovor:', response.data);
     return response.data.data;
   }
 
@@ -119,6 +121,28 @@ class ApiService {
 
   async getAranzmaniByDestination(putovanjeId: number): Promise<Aranzman[]> {
     return this.get<Aranzman[]>(`${API_CONFIG.ENDPOINTS.ARANZMANI}/${putovanjeId}`);
+  }
+
+  // Password Reset Methods
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    console.log('API: sendPasswordResetEmail pozvan sa email:', email);
+    await this.post('/password-reset', { email });
+    console.log('API: sendPasswordResetEmail uspešan');
+  }
+
+  async verifyResetCode(email: string, code: string): Promise<void> {
+    await this.post('/password-reset/verify', { 
+      email, 
+      code 
+    });
+  }
+
+  async resetPassword(email: string, password: string, code: string): Promise<void> {
+    await this.post('/password-reset/confirm', { 
+      email, 
+      password, 
+      code 
+    });
   }
 }
 

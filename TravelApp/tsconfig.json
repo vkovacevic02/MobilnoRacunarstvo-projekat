@@ -54,5 +54,9 @@
   ],
   "exclude": [
     "node_modules"
+<<<<<<< HEAD
   ]
+=======
+  ],
+>>>>>>> 883eaf60c2e78db671a15e773c936f50ee8fc798
 }
