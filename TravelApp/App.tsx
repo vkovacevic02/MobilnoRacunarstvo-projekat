@@ -169,7 +169,7 @@ export default function App() {
       <StatusBar style="auto" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text style={styles.title}>Putovanja</Text>
+          <Text style={styles.title}>Vivir La Vida</Text>
           <Text style={styles.subtitle}>Pronađite svoju sledeću destinaciju</Text>
           <Text style={styles.welcomeText}>Dobrodošli! Uspešno ste se prijavili.</Text>
         </View>

@@ -43,6 +43,7 @@ export default function OnboardingScreen({ onGetStarted }: OnboardingScreenProps
       {/* Content Overlay */}
       <View style={styles.contentOverlay}>
         <View style={styles.textContainer}>
+          <Text style={styles.brand}>Vivir La Vida</Text>
           <Text style={styles.mainTitle}>
             Enjoy the Beauty{'\n'}Of the World
           </Text>
@@ -52,7 +53,7 @@ export default function OnboardingScreen({ onGetStarted }: OnboardingScreenProps
         </View>
         
         <TouchableOpacity style={styles.getStartedButton} onPress={onGetStarted}>
-          <Text style={styles.getStartedText}>Dobrodošli</Text>
+          <Text style={styles.getStartedText}>Get Started</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -91,42 +92,46 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: '#FFFFFFE6',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: Sizes.lg,
     paddingTop: Sizes.xl,
     paddingBottom: Sizes.xxl,
-    minHeight: height * 0.4,
+    minHeight: height * 0.45,
   },
   textContainer: {
     marginBottom: Sizes.xl,
   },
+  brand: {
+    color: Colors.primary,
+    fontSize: Sizes.fontSize.lg,
+    fontWeight: 'bold',
+    marginBottom: Sizes.sm,
+  },
   mainTitle: {
     fontSize: Sizes.fontSize.xxxl + 8,
     fontWeight: 'bold',
-    color: 'white',
+    color: Colors.text,
     lineHeight: 50,
     marginBottom: Sizes.md,
-    fontFamily: 'serif',
   },
   subtitle: {
     fontSize: Sizes.fontSize.lg,
-    color: 'white',
+    color: Colors.textSecondary,
     lineHeight: 24,
-    opacity: 0.9,
   },
   getStartedButton: {
-    backgroundColor: Colors.primary, // Plava boja kao u ostatku aplikacije
+    backgroundColor: Colors.primary,
     paddingVertical: Sizes.lg,
     borderRadius: Sizes.radius.lg,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: Colors.shadow.dark,
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 8,
   },
