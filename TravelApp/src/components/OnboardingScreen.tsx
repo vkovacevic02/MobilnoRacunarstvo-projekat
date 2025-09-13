@@ -19,6 +19,7 @@ interface OnboardingScreenProps {
 }
 
 export default function OnboardingScreen({ onGetStarted }: OnboardingScreenProps) {
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />

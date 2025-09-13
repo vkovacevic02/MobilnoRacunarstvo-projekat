@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -29,6 +29,7 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Greška', 'Molimo unesite email i lozinku');
@@ -40,12 +41,17 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
       const response = await api.login({ email, password });
       
       // Uspješna prijava
-      Alert.alert('Uspešno', 'Uspešno ste se prijavili!', [
-        { text: 'OK', onPress: onLoginSuccess }
-      ]);
+      onLoginSuccess();
     } catch (error: any) {
-      console.error('Login error:', error);
-      Alert.alert('Greška', error.message || 'Greška pri prijavi. Molimo pokušajte ponovo.');
+      let errorMessage = 'Greška pri prijavi. Molimo pokušajte ponovo.';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert('Greška', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -54,6 +60,12 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
   const handleRegister = () => {
     Alert.alert('Registracija', 'Funkcionalnost registracije će biti dodana uskoro!');
   };
+
+  const handleTestLogin = () => {
+    setEmail('danica@gmail.com');
+    setPassword('danica123');
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -96,7 +108,7 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
             <Text style={styles.inputIcon}>👤</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="User name"
+              placeholder="Email (danica@gmail.com)"
               placeholderTextColor="rgba(255, 255, 255, 0.7)"
               value={email}
               onChangeText={setEmail}
@@ -111,7 +123,7 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
             <Text style={styles.inputIcon}>🔒</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="Password"
+              placeholder="Password (danica123)"
               placeholderTextColor="rgba(255, 255, 255, 0.7)"
               value={password}
               onChangeText={setPassword}
@@ -127,8 +139,8 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
           </View>
 
           {/* Forgot Password */}
-          <TouchableOpacity style={styles.forgotPasswordContainer}>
-            <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
+          <TouchableOpacity style={styles.forgotPasswordContainer} onPress={handleTestLogin}>
+            <Text style={styles.forgotPasswordText}>Test Login (danica@gmail.com)</Text>
           </TouchableOpacity>
 
           {/* Login Button */}
