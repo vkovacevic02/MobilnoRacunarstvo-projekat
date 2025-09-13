@@ -11,6 +11,9 @@ import { Putovanje } from './src/types';
 import DestinationDetail from './src/components/DestinationDetail';
 import OnboardingScreen from './src/components/OnboardingScreen';
 import LoginScreen from './src/components/LoginScreen';
+import ResetPasswordScreen from './src/components/ResetPasswordScreen';
+import CheckEmailScreen from './src/components/CheckEmailScreen';
+import CreateNewPasswordScreen from './src/components/CreateNewPasswordScreen';
 
 const { width } = Dimensions.get('window');
 
@@ -28,6 +31,10 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showCheckEmail, setShowCheckEmail] = useState(false);
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
 
 
   const loadPutovanja = async () => {
@@ -70,6 +77,44 @@ export default function App() {
     setShowOnboarding(true);
   };
 
+  // Password Reset Handlers
+  const handleForgotPassword = () => {
+    setShowLogin(false);
+    setShowResetPassword(true);
+  };
+
+  const handleEmailSent = (email: string) => {
+    setResetEmail(email);
+    setShowResetPassword(false);
+    setShowCheckEmail(true);
+  };
+
+  const handleBackToReset = () => {
+    setShowCheckEmail(false);
+    setShowResetPassword(true);
+  };
+
+  const handleContinueFromEmail = () => {
+    setShowCheckEmail(false);
+    setShowCreatePassword(true);
+  };
+
+  const handleBackToEmail = () => {
+    setShowCreatePassword(false);
+    setShowCheckEmail(true);
+  };
+
+  const handlePasswordResetComplete = () => {
+    setShowCreatePassword(false);
+    setShowLogin(true);
+    setResetEmail('');
+  };
+
+  const handleBackToLogin = () => {
+    setShowResetPassword(false);
+    setShowLogin(true);
+  };
+
   const renderItem = ({ item }: { item: Putovanje }) => (
     <TouchableOpacity 
       style={[styles.destCard, { width: CARD_WIDTH }]}
@@ -103,19 +148,50 @@ export default function App() {
     return <OnboardingScreen onGetStarted={handleGetStarted} />;
   }
 
+  // Password Reset Flow
+  if (showResetPassword) {
+    return (
+      <ResetPasswordScreen 
+        onBack={handleBackToLogin}
+        onEmailSent={handleEmailSent}
+      />
+    );
+  }
+
+  if (showCheckEmail) {
+    return (
+      <CheckEmailScreen 
+        email={resetEmail}
+        onBack={handleBackToReset}
+        onContinue={handleContinueFromEmail}
+      />
+    );
+  }
+
+  if (showCreatePassword) {
+    return (
+      <CreateNewPasswordScreen 
+        email={resetEmail}
+        onBack={handleBackToEmail}
+        onPasswordReset={handlePasswordResetComplete}
+      />
+    );
+  }
+
   // Ako je login prikazan, prikaži login
   if (showLogin) {
     return (
       <LoginScreen 
         onLoginSuccess={handleLoginSuccess}
         onBack={handleBackToOnboarding}
+        onForgotPassword={handleForgotPassword}
       />
     );
   }
 
   // Ako nije autentifikovan, vrati na login
   if (!isAuthenticated) {
-    return <LoginScreen onLoginSuccess={handleLoginSuccess} onBack={handleBackToOnboarding} />;
+    return <LoginScreen onLoginSuccess={handleLoginSuccess} onBack={handleBackToOnboarding} onForgotPassword={handleForgotPassword} />;
   }
 
   // Ako je izabrana destinacija, prikaži detalje

@@ -6,6 +6,8 @@ use App\Http\Resources\UserResurs;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class LogovanjeController extends ResponseController
 {
@@ -63,5 +65,60 @@ class LogovanjeController extends ResponseController
         ]);
 
         return $this->usepsno(new UserResurs($user), 'Uspešno ste se registrovali. Molimo vas da se prijavite.');
+    }
+
+    public function sendPasswordResetEmail(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->neuspesno('Validacija nije uspela.', $validator->errors());
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return $this->neuspesno('Korisnik sa ovom email adresom ne postoji.');
+        }
+
+        // Generiši reset token (u stvarnoj aplikaciji bi se poslao email)
+        $resetToken = Str::random(60);
+        
+        // U stvarnoj aplikaciji bi se token sačuvao u bazi i poslao email
+        // Za demo svrhe, samo vraćamo uspešan odgovor
+        
+        return $this->usepsno([
+            'message' => 'Instrukcije za resetovanje lozinke su poslate na vaš email.',
+            'token' => $resetToken // U stvarnoj aplikaciji se ne bi vratio token
+        ], 'Email je poslat.');
+    }
+
+    public function resetPassword(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string|min:8',
+            'token' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->neuspesno('Validacija nije uspela.', $validator->errors());
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return $this->neuspesno('Korisnik sa ovom email adresom ne postoji.');
+        }
+
+        // U stvarnoj aplikaciji bi se proverio token iz baze
+        // Za demo svrhe, samo resetujemo lozinku
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return $this->usepsno([], 'Lozinka je uspešno resetovana.');
     }
 }

@@ -21,37 +21,32 @@ const { width, height } = Dimensions.get('window');
 interface LoginScreenProps {
   onLoginSuccess: () => void;
   onBack: () => void;
+  onForgotPassword?: () => void;
 }
 
-export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps) {
+export default function LoginScreen({ onLoginSuccess, onBack, onForgotPassword }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Greška', 'Molimo unesite email i lozinku');
+      setError('Molimo unesite email i lozinku');
       return;
     }
 
+    setError('');
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await api.login({ email, password });
       
       // Uspješna prijava
       onLoginSuccess();
     } catch (error: any) {
-      let errorMessage = 'Greška pri prijavi. Molimo pokušajte ponovo.';
-      
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      Alert.alert('Greška', errorMessage);
+      setError('Hm, ne možemo da pronađemo nalog za ovaj email');
     } finally {
       setLoading(false);
     }
@@ -61,10 +56,6 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
     Alert.alert('Registracija', 'Funkcionalnost registracije će biti dodana uskoro!');
   };
 
-  const handleTestLogin = () => {
-    setEmail('danica@gmail.com');
-    setPassword('danica123');
-  };
 
 
   return (
@@ -108,10 +99,13 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
             <Text style={styles.inputIcon}>👤</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="Email (danica@gmail.com)"
+              placeholder="Email"
               placeholderTextColor="rgba(255, 255, 255, 0.7)"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (error) setError('');
+              }}
               keyboardType="email-address"
               autoCapitalize="none"
             />
@@ -123,10 +117,13 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
             <Text style={styles.inputIcon}>🔒</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="Password (danica123)"
+              placeholder="Password"
               placeholderTextColor="rgba(255, 255, 255, 0.7)"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => {
+                setPassword(text);
+                if (error) setError('');
+              }}
               secureTextEntry={!showPassword}
             />
             <TouchableOpacity 
@@ -138,9 +135,19 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
             <View style={styles.inputLine} />
           </View>
 
+          {/* Error Message */}
+          {error ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+
           {/* Forgot Password */}
-          <TouchableOpacity style={styles.forgotPasswordContainer} onPress={handleTestLogin}>
-            <Text style={styles.forgotPasswordText}>Test Login (danica@gmail.com)</Text>
+          <TouchableOpacity 
+            style={styles.forgotPasswordContainer}
+            onPress={onForgotPassword}
+          >
+            <Text style={styles.forgotPasswordText}>Zaboravljena lozinka?</Text>
           </TouchableOpacity>
 
           {/* Login Button */}
@@ -341,6 +348,16 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: Sizes.fontSize.lg,
     fontWeight: 'bold',
+  },
+  errorContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  errorText: {
+    color: '#ff6b6b',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });
 

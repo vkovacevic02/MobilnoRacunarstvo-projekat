@@ -120,6 +120,19 @@ class ApiService {
   async getAranzmaniByDestination(putovanjeId: number): Promise<Aranzman[]> {
     return this.get<Aranzman[]>(`${API_CONFIG.ENDPOINTS.ARANZMANI}/${putovanjeId}`);
   }
+
+  // Password Reset Methods
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    await this.post('/password-reset', { email });
+  }
+
+  async resetPassword(email: string, password: string, token: string): Promise<void> {
+    await this.post('/password-reset/confirm', { 
+      email, 
+      password, 
+      token 
+    });
+  }
 }
 
 export default new ApiService();
