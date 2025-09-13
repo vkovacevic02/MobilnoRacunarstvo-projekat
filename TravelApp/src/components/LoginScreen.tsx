@@ -21,9 +21,10 @@ const { width, height } = Dimensions.get('window');
 interface LoginScreenProps {
   onLoginSuccess: () => void;
   onBack: () => void;
+  onRegister?: () => void;
 }
 
-export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps) {
+export default function LoginScreen({ onLoginSuccess, onBack, onRegister }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -52,7 +53,8 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
   };
 
   const handleRegister = () => {
-    Alert.alert('Registracija', 'Funkcionalnost registracije će biti dodana uskoro!');
+    // Navigate to registration screen - this will be handled by parent component
+    onRegister?.();
   };
 
   return (
@@ -153,7 +155,7 @@ export default function LoginScreen({ onLoginSuccess, onBack }: LoginScreenProps
 
           {/* Register Button */}
           <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-            <Text style={styles.registerButtonText}>SIGN IN</Text>
+            <Text style={styles.registerButtonText}>CREATE ACCOUNT</Text>
           </TouchableOpacity>
         </View>
       </View>

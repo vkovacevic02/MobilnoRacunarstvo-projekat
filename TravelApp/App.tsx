@@ -11,6 +11,7 @@ import { Putovanje } from './src/types';
 import DestinationDetail from './src/components/DestinationDetail';
 import OnboardingScreen from './src/components/OnboardingScreen';
 import LoginScreen from './src/components/LoginScreen';
+import SignInScreen from './src/components/SignInScreen';
 
 const { width } = Dimensions.get('window');
 
@@ -27,6 +28,7 @@ export default function App() {
   const [selectedDestination, setSelectedDestination] = useState<Putovanje | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const loadPutovanja = async () => {
@@ -66,7 +68,23 @@ export default function App() {
 
   const handleBackToOnboarding = () => {
     setShowLogin(false);
+    setShowRegister(false);
     setShowOnboarding(true);
+  };
+
+  const handleShowRegister = () => {
+    setShowLogin(false);
+    setShowRegister(true);
+  };
+
+  const handleShowLogin = () => {
+    setShowRegister(false);
+    setShowLogin(true);
+  };
+
+  const handleRegisterSuccess = () => {
+    setShowRegister(false);
+    setShowLogin(true); // After successful registration, show login screen
   };
 
   const renderItem = ({ item }: { item: Putovanje }) => (
@@ -107,13 +125,30 @@ export default function App() {
       <LoginScreen 
         onLoginSuccess={handleLoginSuccess}
         onBack={handleBackToOnboarding}
+        onRegister={handleShowRegister}
+      />
+    );
+  }
+
+  // Ako je register prikazan, prikaži register
+  if (showRegister) {
+    return (
+      <SignInScreen 
+        onRegisterSuccess={handleRegisterSuccess}
+        onBack={handleShowLogin}
       />
     );
   }
 
   // Ako nije autentifikovan, vrati na login
   if (!isAuthenticated) {
-    return <LoginScreen onLoginSuccess={handleLoginSuccess} onBack={handleBackToOnboarding} />;
+    return (
+      <LoginScreen 
+        onLoginSuccess={handleLoginSuccess} 
+        onBack={handleBackToOnboarding} 
+        onRegister={handleShowRegister}
+      />
+    );
   }
 
   // Ako je izabrana destinacija, prikaži detalje
