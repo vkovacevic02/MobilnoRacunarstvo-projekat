@@ -15,11 +15,12 @@ import api from '../services/api';
 
 interface CreateNewPasswordScreenProps {
   email: string;
+  code: string;
   onBack: () => void;
   onPasswordReset: () => void;
 }
 
-export default function CreateNewPasswordScreen({ email, onBack, onPasswordReset }: CreateNewPasswordScreenProps) {
+export default function CreateNewPasswordScreen({ email, code, onBack, onPasswordReset }: CreateNewPasswordScreenProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -44,13 +45,9 @@ export default function CreateNewPasswordScreen({ email, onBack, onPasswordReset
 
     setLoading(true);
     try {
-      // Za demo svrhe koristimo dummy token
-      await api.resetPassword(email, password, 'demo-token');
-      Alert.alert(
-        'Uspešno!', 
-        'Vaša lozinka je uspešno resetovana. Možete se sada prijaviti sa novom lozinkom.',
-        [{ text: 'OK', onPress: onPasswordReset }]
-      );
+      await api.resetPassword(email, password, code);
+      // Uspešno resetovanje - pozovi callback bez Alert-a
+      onPasswordReset();
     } catch (error: any) {
       Alert.alert('Greška', error.response?.data?.message || 'Došlo je do greške. Molimo pokušajte ponovo.');
     } finally {
@@ -214,7 +211,9 @@ const styles = StyleSheet.create({
     marginTop: Sizes.xs,
   },
   resetButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: 'white',
     paddingVertical: Sizes.lg,
     borderRadius: Sizes.radius.lg,
     alignItems: 'center',

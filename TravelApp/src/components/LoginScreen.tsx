@@ -21,17 +21,11 @@ const { width, height } = Dimensions.get('window');
 interface LoginScreenProps {
   onLoginSuccess: () => void;
   onBack: () => void;
-<<<<<<< HEAD
   onForgotPassword?: () => void;
+  onSignIn?: () => void;
 }
 
-export default function LoginScreen({ onLoginSuccess, onBack, onForgotPassword }: LoginScreenProps) {
-=======
-  onRegister?: () => void;
-}
-
-export default function LoginScreen({ onLoginSuccess, onBack, onRegister }: LoginScreenProps) {
->>>>>>> 3bfaaa6b29ea6f6883b6ef1efef4e1a9731b9f80
+export default function LoginScreen({ onLoginSuccess, onBack, onForgotPassword, onSignIn }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -59,10 +53,6 @@ export default function LoginScreen({ onLoginSuccess, onBack, onRegister }: Logi
     }
   };
 
-  const handleRegister = () => {
-    // Navigate to registration screen - this will be handled by parent component
-    onRegister?.();
-  };
 
 
 
@@ -178,10 +168,14 @@ export default function LoginScreen({ onLoginSuccess, onBack, onRegister }: Logi
             <View style={styles.orLine} />
           </View>
 
-          {/* Register Button */}
-          <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-            <Text style={styles.registerButtonText}>CREATE ACCOUNT</Text>
+          {/* Sign In Button */}
+          <TouchableOpacity 
+            style={styles.signInButton} 
+            onPress={onSignIn}
+          >
+            <Text style={styles.signInButtonText}>SIGN IN</Text>
           </TouchableOpacity>
+
         </View>
       </View>
     </SafeAreaView>
@@ -332,7 +326,7 @@ const styles = StyleSheet.create({
   orContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Sizes.lg,
+    marginVertical: Sizes.lg,
   },
   orLine: {
     flex: 1,
@@ -343,6 +337,19 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: Sizes.fontSize.sm,
     marginHorizontal: Sizes.md,
+  },
+  signInButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: 'white',
+    paddingVertical: Sizes.lg,
+    borderRadius: Sizes.radius.lg,
+    alignItems: 'center',
+  },
+  signInButtonText: {
+    color: 'white',
+    fontSize: Sizes.fontSize.lg,
+    fontWeight: 'bold',
   },
   registerButton: {
     backgroundColor: 'transparent',

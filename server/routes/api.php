@@ -10,6 +10,7 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [\App\Http\Controllers\LogovanjeController::class, 'logovanje']);
 Route::post('/register', [\App\Http\Controllers\LogovanjeController::class, 'registracija']);
 Route::post('/password-reset', [\App\Http\Controllers\LogovanjeController::class, 'sendPasswordResetEmail']);
+Route::post('/password-reset/verify', [\App\Http\Controllers\LogovanjeController::class, 'verifyResetCode']);
 Route::post('/password-reset/confirm', [\App\Http\Controllers\LogovanjeController::class, 'resetPassword']);
 
 Route::get('/putovanja', [\App\Http\Controllers\PutovanjeController::class,'index']);

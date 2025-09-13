@@ -49,7 +49,7 @@ export default function CheckEmailScreen({ email, onBack, onContinue }: CheckEma
         <Text style={styles.title}>Proverite vaš email</Text>
         
         <Text style={styles.description}>
-          Poslali smo instrukcije za resetovanje lozinke na vaš email.
+          Poslali smo 6-cifreni kod na vaš email. Unesite kod da nastavite sa resetovanjem lozinke.
         </Text>
 
         {/* Open Email App Button */}
@@ -129,7 +129,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Sizes.md,
   },
   openEmailButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: 'white',
     paddingVertical: Sizes.lg,
     paddingHorizontal: Sizes.xl,
     borderRadius: Sizes.radius.lg,

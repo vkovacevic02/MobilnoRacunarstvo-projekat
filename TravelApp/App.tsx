@@ -11,13 +11,11 @@ import { Putovanje } from './src/types';
 import DestinationDetail from './src/components/DestinationDetail';
 import OnboardingScreen from './src/components/OnboardingScreen';
 import LoginScreen from './src/components/LoginScreen';
-<<<<<<< HEAD
 import ResetPasswordScreen from './src/components/ResetPasswordScreen';
-import CheckEmailScreen from './src/components/CheckEmailScreen';
+import EnterCodeScreen from './src/components/EnterCodeScreen';
 import CreateNewPasswordScreen from './src/components/CreateNewPasswordScreen';
-=======
 import SignInScreen from './src/components/SignInScreen';
->>>>>>> 3bfaaa6b29ea6f6883b6ef1efef4e1a9731b9f80
+import SuccessScreen from './src/components/SuccessScreen';
 
 const { width } = Dimensions.get('window');
 
@@ -34,12 +32,14 @@ export default function App() {
   const [selectedDestination, setSelectedDestination] = useState<Putovanje | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
-  const [showCheckEmail, setShowCheckEmail] = useState(false);
+  const [showEnterCode, setShowEnterCode] = useState(false);
   const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
+  const [resetCode, setResetCode] = useState('');
 
 
   const loadPutovanja = async () => {
@@ -79,11 +79,9 @@ export default function App() {
 
   const handleBackToOnboarding = () => {
     setShowLogin(false);
-    setShowRegister(false);
     setShowOnboarding(true);
   };
 
-<<<<<<< HEAD
   // Password Reset Handlers
   const handleForgotPassword = () => {
     setShowLogin(false);
@@ -93,28 +91,41 @@ export default function App() {
   const handleEmailSent = (email: string) => {
     setResetEmail(email);
     setShowResetPassword(false);
-    setShowCheckEmail(true);
+    setShowEnterCode(true);
   };
 
   const handleBackToReset = () => {
-    setShowCheckEmail(false);
+    setShowEnterCode(false);
     setShowResetPassword(true);
   };
 
-  const handleContinueFromEmail = () => {
-    setShowCheckEmail(false);
+
+  const handleBackToEmailFromCode = () => {
+    setShowEnterCode(false);
+    setShowResetPassword(true);
+  };
+
+  const handleCodeVerified = (code: string) => {
+    setResetCode(code);
+    setShowEnterCode(false);
     setShowCreatePassword(true);
   };
 
-  const handleBackToEmail = () => {
+  const handleBackToEmailFromPassword = () => {
     setShowCreatePassword(false);
-    setShowCheckEmail(true);
+    setShowResetPassword(true);
   };
 
   const handlePasswordResetComplete = () => {
     setShowCreatePassword(false);
+    setShowSuccess(true);
+  };
+
+  const handleSuccessContinue = () => {
+    setShowSuccess(false);
     setShowLogin(true);
     setResetEmail('');
+    setResetCode('');
   };
 
   const handleBackToLogin = () => {
@@ -122,23 +133,22 @@ export default function App() {
     setShowLogin(true);
   };
 
-=======
-  const handleShowRegister = () => {
+  // Sign In Handlers
+  const handleShowSignIn = () => {
     setShowLogin(false);
-    setShowRegister(true);
+    setShowSignIn(true);
   };
 
-  const handleShowLogin = () => {
-    setShowRegister(false);
+  const handleSignInSuccess = () => {
+    setShowSignIn(false);
     setShowLogin(true);
   };
 
-  const handleRegisterSuccess = () => {
-    setShowRegister(false);
-    setShowLogin(true); // After successful registration, show login screen
+  const handleBackToLoginFromSignIn = () => {
+    setShowSignIn(false);
+    setShowLogin(true);
   };
-
->>>>>>> 3bfaaa6b29ea6f6883b6ef1efef4e1a9731b9f80
+  
   const renderItem = ({ item }: { item: Putovanje }) => (
     <TouchableOpacity 
       style={[styles.destCard, { width: CARD_WIDTH }]}
@@ -172,6 +182,18 @@ export default function App() {
     return <OnboardingScreen onGetStarted={handleGetStarted} />;
   }
 
+  // Success Screen
+  if (showSuccess) {
+    return (
+      <SuccessScreen 
+        title="Uspešno!"
+        message="Vaša lozinka je uspešno resetovana. Možete se sada prijaviti sa novom lozinkom."
+        buttonText="Idi na prijavu"
+        onButtonPress={handleSuccessContinue}
+      />
+    );
+  }
+
   // Password Reset Flow
   if (showResetPassword) {
     return (
@@ -182,12 +204,13 @@ export default function App() {
     );
   }
 
-  if (showCheckEmail) {
+
+  if (showEnterCode) {
     return (
-      <CheckEmailScreen 
+      <EnterCodeScreen 
         email={resetEmail}
-        onBack={handleBackToReset}
-        onContinue={handleContinueFromEmail}
+        onBack={handleBackToEmailFromCode}
+        onCodeVerified={(code) => handleCodeVerified(code)}
       />
     );
   }
@@ -196,8 +219,19 @@ export default function App() {
     return (
       <CreateNewPasswordScreen 
         email={resetEmail}
-        onBack={handleBackToEmail}
+        code={resetCode}
+        onBack={handleBackToEmailFromPassword}
         onPasswordReset={handlePasswordResetComplete}
+      />
+    );
+  }
+
+  // Ako je SignIn prikazan, prikaži SignIn
+  if (showSignIn) {
+    return (
+      <SignInScreen 
+        onSignInSuccess={handleSignInSuccess}
+        onBack={handleBackToLoginFromSignIn}
       />
     );
   }
@@ -208,38 +242,15 @@ export default function App() {
       <LoginScreen 
         onLoginSuccess={handleLoginSuccess}
         onBack={handleBackToOnboarding}
-<<<<<<< HEAD
         onForgotPassword={handleForgotPassword}
-=======
-        onRegister={handleShowRegister}
-      />
-    );
-  }
-
-  // Ako je register prikazan, prikaži register
-  if (showRegister) {
-    return (
-      <SignInScreen 
-        onRegisterSuccess={handleRegisterSuccess}
-        onBack={handleShowLogin}
->>>>>>> 3bfaaa6b29ea6f6883b6ef1efef4e1a9731b9f80
+        onSignIn={handleShowSignIn}
       />
     );
   }
 
   // Ako nije autentifikovan, vrati na login
   if (!isAuthenticated) {
-<<<<<<< HEAD
-    return <LoginScreen onLoginSuccess={handleLoginSuccess} onBack={handleBackToOnboarding} onForgotPassword={handleForgotPassword} />;
-=======
-    return (
-      <LoginScreen 
-        onLoginSuccess={handleLoginSuccess} 
-        onBack={handleBackToOnboarding} 
-        onRegister={handleShowRegister}
-      />
-    );
->>>>>>> 3bfaaa6b29ea6f6883b6ef1efef4e1a9731b9f80
+    return <LoginScreen onLoginSuccess={handleLoginSuccess} onBack={handleBackToOnboarding} onForgotPassword={handleForgotPassword} onSignIn={handleShowSignIn} />;
   }
 
   // Ako je izabrana destinacija, prikaži detalje

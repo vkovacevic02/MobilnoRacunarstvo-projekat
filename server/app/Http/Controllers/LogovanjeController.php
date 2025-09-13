@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResurs;
 use App\Models\User;
+use App\Models\PasswordResetCode;
+use App\Mail\PasswordResetMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class LogovanjeController extends ResponseController
@@ -69,30 +72,70 @@ class LogovanjeController extends ResponseController
 
     public function sendPasswordResetEmail(Request $request): \Illuminate\Http\JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email',
+            ]);
 
-        if ($validator->fails()) {
-            return $this->neuspesno('Validacija nije uspela.', $validator->errors());
+            if ($validator->fails()) {
+                return $this->neuspesno('Validacija nije uspela.', $validator->errors());
+            }
+
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                return $this->neuspesno('Korisnik sa ovom email adresom ne postoji.');
+            }
+
+            // Generiši i sačuvaj kod
+            $resetCode = PasswordResetCode::createForEmail($request->email);
+            
+            // Pošalji email sa kodom
+            try {
+                Mail::to($request->email)->send(new PasswordResetMail($request->email, $resetCode->code));
+                
+                return $this->usepsno([
+                    'message' => 'Kod za resetovanje lozinke je poslat na vaš email.',
+                ], 'Email je poslat.');
+            } catch (\Exception $e) {
+                // Ako slanje email-a ne uspe, vrati grešku
+                return $this->neuspesno('Došlo je do greške prilikom slanja email-a. Molimo pokušajte ponovo.');
+            }
+            
+        } catch (\Exception $e) {
+            return $this->neuspesno('Greška: ' . $e->getMessage());
         }
+    }
 
-        $user = User::where('email', $request->email)->first();
+    public function verifyResetCode(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email',
+                'code' => 'required|string|size:6',
+            ]);
 
-        if (!$user) {
-            return $this->neuspesno('Korisnik sa ovom email adresom ne postoji.');
+            if ($validator->fails()) {
+                return $this->neuspesno('Validacija nije uspela.', $validator->errors());
+            }
+
+            $resetCode = PasswordResetCode::where('email', $request->email)
+                ->where('code', $request->code)
+                ->where('used', false)
+                ->first();
+
+            if (!$resetCode) {
+                return $this->neuspesno('Kod nije pronađen ili je već korišćen.');
+            }
+
+            if (!$resetCode->isValid()) {
+                return $this->neuspesno('Kod je istekao.');
+            }
+
+            return $this->usepsno([], 'Kod je ispravan.');
+        } catch (\Exception $e) {
+            return $this->neuspesno('Greška: ' . $e->getMessage());
         }
-
-        // Generiši reset token (u stvarnoj aplikaciji bi se poslao email)
-        $resetToken = Str::random(60);
-        
-        // U stvarnoj aplikaciji bi se token sačuvao u bazi i poslao email
-        // Za demo svrhe, samo vraćamo uspešan odgovor
-        
-        return $this->usepsno([
-            'message' => 'Instrukcije za resetovanje lozinke su poslate na vaš email.',
-            'token' => $resetToken // U stvarnoj aplikaciji se ne bi vratio token
-        ], 'Email je poslat.');
     }
 
     public function resetPassword(Request $request): \Illuminate\Http\JsonResponse
@@ -100,7 +143,7 @@ class LogovanjeController extends ResponseController
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:8',
-            'token' => 'required|string',
+            'code' => 'required|string|size:6',
         ]);
 
         if ($validator->fails()) {
@@ -113,11 +156,23 @@ class LogovanjeController extends ResponseController
             return $this->neuspesno('Korisnik sa ovom email adresom ne postoji.');
         }
 
-        // U stvarnoj aplikaciji bi se proverio token iz baze
-        // Za demo svrhe, samo resetujemo lozinku
+        // Proveri kod
+        $resetCode = PasswordResetCode::where('email', $request->email)
+            ->where('code', $request->code)
+            ->where('used', false)
+            ->first();
 
+        if (!$resetCode || !$resetCode->isValid()) {
+            return $this->neuspesno('Neispravan ili istekao kod.');
+        }
+
+        // Resetuj lozinku
         $user->password = Hash::make($request->password);
         $user->save();
+
+        // Označi kod kao korišćen
+        $resetCode->used = true;
+        $resetCode->save();
 
         return $this->usepsno([], 'Lozinka je uspešno resetovana.');
     }

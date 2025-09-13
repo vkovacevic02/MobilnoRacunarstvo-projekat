@@ -60,6 +60,7 @@ export default function ResetPasswordScreen({ onBack, onEmailSent }: ResetPasswo
 
       {/* Content */}
       <View style={styles.content}>
+
         <Text style={styles.title}>Resetovanje lozinke</Text>
         
         <Text style={styles.description}>
@@ -81,6 +82,7 @@ export default function ResetPasswordScreen({ onBack, onEmailSent }: ResetPasswo
           />
         </View>
 
+
         {/* Send Instructions Button */}
         <TouchableOpacity 
           style={[styles.sendButton, loading && styles.sendButtonDisabled]} 
@@ -92,6 +94,7 @@ export default function ResetPasswordScreen({ onBack, onEmailSent }: ResetPasswo
           </Text>
         </TouchableOpacity>
       </View>
+
     </SafeAreaView>
   );
 }
@@ -167,7 +170,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   sendButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: 'white',
     paddingVertical: Sizes.lg,
     borderRadius: Sizes.radius.lg,
     alignItems: 'center',
