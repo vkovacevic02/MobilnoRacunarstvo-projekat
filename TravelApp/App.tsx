@@ -11,9 +11,13 @@ import { Putovanje } from './src/types';
 import DestinationDetail from './src/components/DestinationDetail';
 import OnboardingScreen from './src/components/OnboardingScreen';
 import LoginScreen from './src/components/LoginScreen';
+<<<<<<< HEAD
 import ResetPasswordScreen from './src/components/ResetPasswordScreen';
 import CheckEmailScreen from './src/components/CheckEmailScreen';
 import CreateNewPasswordScreen from './src/components/CreateNewPasswordScreen';
+=======
+import SignInScreen from './src/components/SignInScreen';
+>>>>>>> 3bfaaa6b29ea6f6883b6ef1efef4e1a9731b9f80
 
 const { width } = Dimensions.get('window');
 
@@ -30,6 +34,7 @@ export default function App() {
   const [selectedDestination, setSelectedDestination] = useState<Putovanje | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [showCheckEmail, setShowCheckEmail] = useState(false);
@@ -74,9 +79,11 @@ export default function App() {
 
   const handleBackToOnboarding = () => {
     setShowLogin(false);
+    setShowRegister(false);
     setShowOnboarding(true);
   };
 
+<<<<<<< HEAD
   // Password Reset Handlers
   const handleForgotPassword = () => {
     setShowLogin(false);
@@ -115,6 +122,23 @@ export default function App() {
     setShowLogin(true);
   };
 
+=======
+  const handleShowRegister = () => {
+    setShowLogin(false);
+    setShowRegister(true);
+  };
+
+  const handleShowLogin = () => {
+    setShowRegister(false);
+    setShowLogin(true);
+  };
+
+  const handleRegisterSuccess = () => {
+    setShowRegister(false);
+    setShowLogin(true); // After successful registration, show login screen
+  };
+
+>>>>>>> 3bfaaa6b29ea6f6883b6ef1efef4e1a9731b9f80
   const renderItem = ({ item }: { item: Putovanje }) => (
     <TouchableOpacity 
       style={[styles.destCard, { width: CARD_WIDTH }]}
@@ -184,14 +208,38 @@ export default function App() {
       <LoginScreen 
         onLoginSuccess={handleLoginSuccess}
         onBack={handleBackToOnboarding}
+<<<<<<< HEAD
         onForgotPassword={handleForgotPassword}
+=======
+        onRegister={handleShowRegister}
+      />
+    );
+  }
+
+  // Ako je register prikazan, prikaži register
+  if (showRegister) {
+    return (
+      <SignInScreen 
+        onRegisterSuccess={handleRegisterSuccess}
+        onBack={handleShowLogin}
+>>>>>>> 3bfaaa6b29ea6f6883b6ef1efef4e1a9731b9f80
       />
     );
   }
 
   // Ako nije autentifikovan, vrati na login
   if (!isAuthenticated) {
+<<<<<<< HEAD
     return <LoginScreen onLoginSuccess={handleLoginSuccess} onBack={handleBackToOnboarding} onForgotPassword={handleForgotPassword} />;
+=======
+    return (
+      <LoginScreen 
+        onLoginSuccess={handleLoginSuccess} 
+        onBack={handleBackToOnboarding} 
+        onRegister={handleShowRegister}
+      />
+    );
+>>>>>>> 3bfaaa6b29ea6f6883b6ef1efef4e1a9731b9f80
   }
 
   // Ako je izabrana destinacija, prikaži detalje
