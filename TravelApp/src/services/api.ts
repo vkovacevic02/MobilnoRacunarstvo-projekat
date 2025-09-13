@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG } from '../constants/api';
-import { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, Putovanje } from '../types';
+import { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, Putovanje, Aranzman } from '../types';
 
 class ApiService {
   private api: AxiosInstance;
@@ -115,6 +115,10 @@ class ApiService {
   // Domain methods
   async getPutovanja(): Promise<Putovanje[]> {
     return this.get<Putovanje[]>(API_CONFIG.ENDPOINTS.PUTOVANJA);
+  }
+
+  async getAranzmaniByDestination(putovanjeId: number): Promise<Aranzman[]> {
+    return this.get<Aranzman[]>(`${API_CONFIG.ENDPOINTS.ARANZMANI}/${putovanjeId}`);
   }
 }
 

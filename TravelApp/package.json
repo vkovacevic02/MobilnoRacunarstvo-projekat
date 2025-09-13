@@ -33,7 +33,6 @@
     "react-native-web": "^0.21.0",
     "react-redux": "^9.1.0",
     "typescript": "~5.8.3",
-    "undefined": "\\",
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {

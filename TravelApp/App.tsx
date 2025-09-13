@@ -8,6 +8,9 @@ import { Colors } from './src/constants/colors';
 import { Sizes } from './src/constants/sizes';
 import api from './src/services/api';
 import { Putovanje } from './src/types';
+import DestinationDetail from './src/components/DestinationDetail';
+import OnboardingScreen from './src/components/OnboardingScreen';
+import LoginScreen from './src/components/LoginScreen';
 
 const { width } = Dimensions.get('window');
 
@@ -21,6 +24,10 @@ export default function App() {
   const [putovanja, setPutovanja] = useState<Putovanje[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedDestination, setSelectedDestination] = useState<Putovanje | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const loadPutovanja = async () => {
     try {
@@ -36,12 +43,37 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    loadPutovanja();
-  }, []);
+  // Uklonjen useEffect - destinacije se učitavaju tek kada korisnik klikne "Dobrodošli"
+
+  const handleDestinationPress = (destination: Putovanje) => {
+    setSelectedDestination(destination);
+  };
+
+  const handleBackToList = () => {
+    setSelectedDestination(null);
+  };
+
+  const handleGetStarted = () => {
+    setShowOnboarding(false);
+    setShowLogin(true);
+  };
+
+  const handleLoginSuccess = () => {
+    setShowLogin(false);
+    setIsAuthenticated(true);
+    loadPutovanja(); // Učitaj destinacije nakon uspešne prijave
+  };
+
+  const handleBackToOnboarding = () => {
+    setShowLogin(false);
+    setShowOnboarding(true);
+  };
 
   const renderItem = ({ item }: { item: Putovanje }) => (
-    <TouchableOpacity style={[styles.destCard, { width: CARD_WIDTH }]}>
+    <TouchableOpacity 
+      style={[styles.destCard, { width: CARD_WIDTH }]}
+      onPress={() => handleDestinationPress(item)}
+    >
       <View style={[styles.imageContainer, { height: Math.round(CARD_WIDTH * 0.62) }]}>
         <Image
           source={{ uri: item.slika || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=300&fit=crop' }}
@@ -63,6 +95,36 @@ export default function App() {
       </View>
     </TouchableOpacity>
   );
+
+  // Ako je onboarding prikazan, prikaži onboarding
+  if (showOnboarding) {
+    return <OnboardingScreen onGetStarted={handleGetStarted} />;
+  }
+
+  // Ako je login prikazan, prikaži login
+  if (showLogin) {
+    return (
+      <LoginScreen 
+        onLoginSuccess={handleLoginSuccess}
+        onBack={handleBackToOnboarding}
+      />
+    );
+  }
+
+  // Ako nije autentifikovan, vrati na login
+  if (!isAuthenticated) {
+    return <LoginScreen onLoginSuccess={handleLoginSuccess} onBack={handleBackToOnboarding} />;
+  }
+
+  // Ako je izabrana destinacija, prikaži detalje
+  if (selectedDestination) {
+    return (
+      <DestinationDetail 
+        destination={selectedDestination} 
+        onBack={handleBackToList}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
