@@ -57,7 +57,6 @@ class LogovanjeController extends ResponseController
             'prezime' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'telefon' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -68,7 +67,6 @@ class LogovanjeController extends ResponseController
             'name' => $request->ime . ' ' . $request->prezime,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'role' => $request->role ?? User::ROLE_PUTNIK
         ]);
 
         // Registracija je uspešna - ne šaljemo email za verifikaciju

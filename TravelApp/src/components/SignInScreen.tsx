@@ -29,7 +29,6 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
     email: '',
     password: '',
     confirmPassword: '',
-    telefon: '',
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -62,10 +61,6 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
       newErrors.confirmPassword = 'Lozinke se ne poklapaju';
     }
 
-    if (!formData.telefon.trim()) {
-      newErrors.telefon = 'Telefon je obavezan';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -81,9 +76,7 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
         ime: formData.ime,
         prezime: formData.prezime,
         email: formData.email,
-        password: formData.password,
-        telefon: formData.telefon,
-        role: 'putnik'
+        password: formData.password
       });
 
       // Registracija uspešna - prikaži potvrdu
@@ -221,20 +214,6 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
           <View style={authStyles.inputLine} />
         </View>
 
-        {/* Telefon */}
-        <View style={authStyles.inputContainer}>
-          <Ionicons style={authStyles.inputIcon} name="call-outline" size={Sizes.icon.md} color={Colors.textSecondary} />
-          <TextInput
-            style={[authStyles.textInput, errors.telefon && authStyles.textInputError]}
-            placeholder="Telefon"
-            placeholderTextColor="rgba(0, 0, 0, 0.6)"
-            value={formData.telefon}
-            onChangeText={(value) => handleInputChange('telefon', value)}
-            keyboardType="phone-pad"
-          />
-          {errors.telefon && <Text style={authStyles.errorText}>{errors.telefon}</Text>}
-          <View style={authStyles.inputLine} />
-        </View>
 
         {/* Lozinka */}
         <View style={authStyles.inputContainer}>

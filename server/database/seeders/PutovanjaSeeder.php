@@ -31,7 +31,7 @@ class PutovanjaSeeder extends Seeder
                 'nazivPutovanja' => 'Zermatt',
                 'opis' => 'Alpsko skijalište sa predivnim pogledom na Matterhorn.',
                 'lokacija' => 'Švajcarska',
-                'slika' => 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+                'slika' => 'https://www.travelandleisure.com/thmb/F3V1ei2YrUH4Qd_fvSgkAneZ4R8=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/TAL-header-zermatt-switzerland-ZERMATT0123-08b7127082434b9f83db57251c051c1b.jpg',
                 'cena' => 799.00,
             ],
             [
@@ -52,7 +52,7 @@ class PutovanjaSeeder extends Seeder
                 'nazivPutovanja' => 'Maldivi',
                 'opis' => 'Tropski raj sa kristalno čistim morem i predivnim plažama.',
                 'lokacija' => 'Maldivi',
-                'slika' => 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+                'slika' => 'https://itravel.rs/wp-content/uploads/2019/10/Maldivi-najbolje-ponude.jpg',
                 'cena' => 1299.00,
             ]
         ];

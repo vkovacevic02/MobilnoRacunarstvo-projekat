@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NavigationContainer } from '@react-navigation/native';
 import { Colors } from './src/constants/colors';
 import { Sizes } from './src/constants/sizes';
 import OnboardingScreen from './src/components/OnboardingScreen';
@@ -8,9 +10,9 @@ import ResetPasswordScreen from './src/components/ResetPasswordScreen';
 import EnterCodeScreen from './src/components/EnterCodeScreen';
 import CreateNewPasswordScreen from './src/components/CreateNewPasswordScreen';
 import SuccessScreen from './src/components/SuccessScreen';
-import DestinationsList from './src/components/DestinationsList';
 import DestinationDetail from './src/components/DestinationDetail';
 import SignInScreen from './src/components/SignInScreen';
+import MainTabs from './src/components/MainTabs';
 import { Putovanje } from './src/types';
 import api from './src/services/api';
 
@@ -21,7 +23,6 @@ export default function App() {
   const [showEnterCode, setShowEnterCode] = useState(false);
   const [showCreatePassword, setShowCreatePassword] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showDestinations, setShowDestinations] = useState(false);
   const [showDestinationDetail, setShowDestinationDetail] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -37,7 +38,6 @@ export default function App() {
 
   const handleLoginSuccess = () => {
     setShowLogin(false);
-    setShowDestinations(true);
     setIsAuthenticated(true);
   };
 
@@ -102,22 +102,42 @@ export default function App() {
   // Destinations handlers
   const handleDestinationSelect = (destination: Putovanje) => {
     setSelectedDestination(destination);
-    setShowDestinations(false);
     setShowDestinationDetail(true);
   };
 
   const handleBackToDestinations = () => {
     setShowDestinationDetail(false);
-    setShowDestinations(true);
     setSelectedDestination(null);
   };
 
-  const handleLogout = () => {
-    setShowDestinations(false);
-    setShowDestinationDetail(false);
+  const handleLogout = async () => {
+    console.log('handleLogout called in App.tsx - going to onboarding');
+    
+    try {
+      // Obriši sve podatke iz storage-a
+      await AsyncStorage.removeItem('auth_token');
+      await AsyncStorage.removeItem('user_data');
+      console.log('Cleared storage data');
+    } catch (error) {
+      console.log('Error clearing storage:', error);
+    }
+    
+    // Resetuj sve state-ove na početno stanje
     setShowOnboarding(true);
+    setShowLogin(false);
+    setShowResetPassword(false);
+    setShowEnterCode(false);
+    setShowCreatePassword(false);
+    setShowSuccess(false);
+    setShowDestinationDetail(false);
+    setShowSignIn(false);
     setIsAuthenticated(false);
+    setResetEmail('');
+    setResetCode('');
+    setSentCode('');
     setSelectedDestination(null);
+    
+    console.log('All states reset - should show onboarding now');
   };
 
   // Sign In handlers
@@ -150,12 +170,11 @@ export default function App() {
     );
   }
 
-  if (showDestinations) {
+  if (isAuthenticated && !showDestinationDetail) {
     return (
-      <DestinationsList 
-        onDestinationSelect={handleDestinationSelect}
-        onLogout={handleLogout}
-      />
+      <NavigationContainer>
+        <MainTabs onLogout={handleLogout} />
+      </NavigationContainer>
     );
   }
 

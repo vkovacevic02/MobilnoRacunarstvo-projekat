@@ -28,6 +28,7 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [minPrice, setMinPrice] = useState<number | null>(null);
 
   const loadAranzmani = async () => {
     try {
@@ -35,9 +36,18 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
       setError(null);
       const data = await api.get<Aranzman[]>(`/aranzmani/${destination.id}`);
       setAranzmani(data);
+      
+      // Izračunaj najnižu cenu
+      if (data && data.length > 0) {
+        const lowest = Math.min(...data.map((a: Aranzman) => a.cena));
+        setMinPrice(lowest);
+      } else {
+        setMinPrice(destination.cena || null);
+      }
     } catch (e: any) {
       console.error('Greška pri učitavanju aranžmana:', e);
       setError(`Greška pri učitavanju aranžmana: ${e.message || e}`);
+      setMinPrice(destination.cena || null);
     } finally {
       setLoading(false);
     }
@@ -83,7 +93,7 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
           {/* Cena i ocena */}
           <View style={styles.priceRatingContainer}>
             <Text style={styles.price}>
-              {destination.cena ? `$${destination.cena}/Per Person` : 'Cena na upit'}
+              {minPrice ? `Od €${minPrice}` : 'Cena na upit'}
             </Text>
             <View style={styles.ratingContainer}>
               <Text style={styles.starIcon}>★</Text>
@@ -138,7 +148,7 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
                 <View key={aranzman.id} style={styles.arrangementCard}>
                   <View style={styles.arrangementHeader}>
                     <Text style={styles.arrangementName}>{aranzman.nazivAranzmana}</Text>
-                    <Text style={styles.arrangementPrice}>${aranzman.cena}</Text>
+                    <Text style={styles.arrangementPrice}>€{aranzman.cena}</Text>
                   </View>
                   <Text style={styles.arrangementDates}>
                     {new Date(aranzman.datumOd).toLocaleDateString()} - {new Date(aranzman.datumDo).toLocaleDateString()}

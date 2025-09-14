@@ -12,7 +12,7 @@ class PutniciSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = \App\Models\User::where('role', \App\Models\User::ROLE_PUTNIK)->get();
+        $users = \App\Models\User::all();
 
         $aranzmani = \App\Models\Aranzman::all();
 

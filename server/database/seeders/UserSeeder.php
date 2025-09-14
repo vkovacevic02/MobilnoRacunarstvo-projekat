@@ -17,28 +17,24 @@ class UserSeeder extends Seeder
             'name' => 'Danica',
             'email' => 'danica@gmail.com',
             'password' => bcrypt('danica123'),
-            'role' => User::ROLE_ADMIN,
         ]);
 
         User::create([
             'name' => 'Vukasin',
             'email' => 'vukasin@gmail.com',
             'password' => bcrypt('vukasin123'),
-            'role' => User::ROLE_FINANSIJKI_ADMIN,
         ]);
 
         User::create([
             'name' => 'Agent',
             'email' => 'agent@gmail.com',
             'password' => bcrypt('agent123'),
-            'role' => User::ROLE_AGENT,
         ]);
 
         User::create([
             'name' => 'Vodja Puta',
             'email' => 'vodja@gmail.com',
             'password' => bcrypt('vodja123'),
-            'role' => User::ROLE_VODJA_PUTA,
         ]);
 
         $faker = \Faker\Factory::create();
@@ -48,7 +44,6 @@ class UserSeeder extends Seeder
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
                 'password' => bcrypt('password123'),
-                'role' => User::ROLE_PUTNIK,
             ]);
         }
     }

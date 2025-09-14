@@ -84,6 +84,15 @@ class ApiService {
     }
   }
 
+  async getUserInfo(): Promise<ApiResponse<any>> {
+    return this.get<ApiResponse<any>>('/user');
+  }
+
+  async updateProfile(profileData: any): Promise<ApiResponse<any>> {
+    const response = await this.api.put<ApiResponse<any>>('/user/profile', profileData);
+    return response.data;
+  }
+
   // Generic GET method
   async get<T>(endpoint: string): Promise<T> {
     const response = await this.api.get<ApiResponse<T>>(endpoint);
@@ -149,6 +158,15 @@ class ApiService {
       password, 
       code 
     });
+  }
+
+  // User specific data
+  async getUserBookings(userId: number): Promise<any[]> {
+    return this.get<any[]>(`/users/${userId}/putnici`);
+  }
+
+  async getUserPayments(userId: number): Promise<any[]> {
+    return this.get<any[]>(`/users/${userId}/uplate`);
   }
 }
 

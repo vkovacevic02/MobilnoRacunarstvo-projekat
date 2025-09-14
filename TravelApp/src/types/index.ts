@@ -1,14 +1,14 @@
 // User Types
 export interface User {
   id: number;
-  name: string;
+  ime?: string;
+  prezime?: string;
+  name?: string;
   email: string;
-  role: UserRole;
-  created_at: string;
-  updated_at: string;
+  email_verified_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
-
-export type UserRole = 'admin' | 'putnik' | 'agent' | 'vodja_puta' | 'finansijski_admin';
 
 // Travel Types
 export interface Putovanje {
@@ -96,13 +96,28 @@ export interface RegisterRequest {
   prezime: string;
   email: string;
   password: string;
-  telefon: string;
-  role?: string;
 }
 
 export interface AuthResponse {
   user: User;
   token: string;
+}
+
+// Booking Types
+export interface UserBooking {
+  id: number;
+  user: User;
+  aranzman: Aranzman;
+  datum: string;
+  ukupnaCenaAranzmana: number;
+}
+
+export interface UserPayment {
+  id: number;
+  user: User;
+  aranzman: Aranzman;
+  iznos: number;
+  datumUplate: string;
 }
 
 // UI Types
