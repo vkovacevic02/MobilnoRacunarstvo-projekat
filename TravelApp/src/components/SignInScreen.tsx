@@ -19,7 +19,7 @@ import api from '../services/api';
 
 interface SignInScreenProps {
   onBack: () => void;
-  onSignInSuccess: (email: string) => void;
+  onSignInSuccess: () => void;
 }
 
 export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenProps) {
@@ -33,6 +33,7 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [successMessage, setSuccessMessage] = useState('');
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
@@ -76,7 +77,6 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
 
     setLoading(true);
     try {
-      console.log('Pozivam API za registraciju...');
       const response = await api.register({
         ime: formData.ime,
         prezime: formData.prezime,
@@ -86,16 +86,50 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
         role: 'putnik'
       });
 
-      console.log('API odgovor:', response);
-      console.log('Registracija uspešna, prelazimo na verifikaciju za:', formData.email);
-      // Odmah prelazimo na verifikaciju
-      onSignInSuccess(formData.email);
+      // Registracija uspešna - prikaži potvrdu
+      setSuccessMessage('Registracija uspešna! Kliknite dugme ispod da se vratite na login.');
+      setLoading(false);
     } catch (error: any) {
-      console.error('Greška pri registraciji:', error);
-      Alert.alert(
-        'Greška',
-        error.response?.data?.message || 'Došlo je do greške pri registraciji. Pokušajte ponovo.'
-      );
+      let errorMessage = 'Došlo je do greške pri registraciji. Pokušajte ponovo.';
+      let isEmailError = false;
+      
+      // Proveri različite formate grešaka
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } 
+      
+      if (error.response?.data?.errors?.email) {
+        const emailErrors = error.response.data.errors.email;
+        errorMessage = Array.isArray(emailErrors) ? emailErrors[0] : emailErrors;
+        isEmailError = true;
+      }
+      
+      if (error.response?.data?.errors && typeof error.response.data.errors === 'object') {
+        const errors = error.response.data.errors;
+        
+        if (errors.email) {
+          const emailError = Array.isArray(errors.email) ? errors.email[0] : errors.email;
+          if (emailError.includes('unique') || emailError.includes('već postoji')) {
+            errorMessage = 'Korisnički nalog sa ovom email adresom već postoji.';
+            isEmailError = true;
+          }
+        }
+      }
+      
+      if (error.message && !error.response) {
+        errorMessage = error.message;
+      }
+      
+      if (error.code === 'NETWORK_ERROR') {
+        errorMessage = 'Nema konekcije sa serverom. Proverite internet konekciju.';
+      }
+      
+      // Ako je greška vezana za email, postavi error za email polje
+      if (isEmailError) {
+        setErrors(prev => ({ ...prev, email: errorMessage }));
+      }
+      
+      Alert.alert('Greška', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -131,6 +165,15 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
         <Text style={authStyles.subtitle}>
           Kreirajte svoj nalog da biste pristupili destinacijama
         </Text>
+
+        {/* Success Message */}
+        {successMessage ? (
+          <View style={{ backgroundColor: Colors.primary, padding: 15, margin: 10, borderRadius: 8 }}>
+            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}>
+              {successMessage}
+            </Text>
+          </View>
+        ) : null}
 
         {/* Ime */}
         <View style={authStyles.inputContainer}>
@@ -223,16 +266,30 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
           <View style={authStyles.inputLine} />
         </View>
 
-        {/* Registracija dugme */}
-        <TouchableOpacity
-          style={[authStyles.loginButton, loading && authStyles.loginButtonDisabled]}
-          onPress={handleSignIn}
-          disabled={loading}
-        >
-          <Text style={authStyles.loginButtonText}>
-            {loading ? 'Registracija...' : 'Registruj se'}
-          </Text>
-        </TouchableOpacity>
+        {/* Registracija dugme ili dugme za povratak na login */}
+        {successMessage ? (
+          <TouchableOpacity
+            style={[authStyles.loginButton, { backgroundColor: Colors.primary }]}
+            onPress={() => {
+              setSuccessMessage('');
+              onSignInSuccess();
+            }}
+          >
+            <Text style={authStyles.loginButtonText}>
+              Vrati se na login
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[authStyles.loginButton, loading && authStyles.loginButtonDisabled]}
+            onPress={handleSignIn}
+            disabled={loading}
+          >
+            <Text style={authStyles.loginButtonText}>
+              {loading ? 'Registracija...' : 'Registruj se'}
+            </Text>
+          </TouchableOpacity>
+        )}
 
         {/* Već imate nalog */}
         <View style={authStyles.signInContainer}>

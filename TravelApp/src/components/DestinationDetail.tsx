@@ -49,7 +49,6 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
 
   const handleReserve = (aranzman: Aranzman) => {
     // TODO: Implementirati rezervaciju
-    console.log('Rezervacija za aranžman:', aranzman);
     alert(`Rezervacija za ${aranzman.nazivAranzmana}`);
   };
 

@@ -9,7 +9,6 @@ export const authStyles = StyleSheet.create({
   imageContainer: { flex: 1, position: 'relative' },
   backgroundImage: { width: '100%', height: '100%' },
   backButton: { position: 'absolute', top: 50, left: 20, width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255, 255, 255, 0.9)', alignItems: 'center', justifyContent: 'center' },
-  backIcon: { fontSize: 24, color: Colors.primary, fontWeight: 'bold' },
   contentOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(255, 255, 255, 0.85)', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: Sizes.lg, paddingTop: Sizes.xl, paddingBottom: Sizes.xxl, minHeight: height * 0.6 },
 
   logoContainer: { alignItems: 'center', marginBottom: Sizes.xl },
@@ -41,8 +40,6 @@ export const authStyles = StyleSheet.create({
   orLine: { flex: 1, height: 1, backgroundColor: Colors.border },
   orText: { color: Colors.textSecondary, fontSize: Sizes.fontSize.sm, marginHorizontal: Sizes.md },
 
-  registerButton: { backgroundColor: 'transparent', borderWidth: 2, borderColor: Colors.primary, paddingVertical: Sizes.lg, borderRadius: Sizes.radius.lg, alignItems: 'center' },
-  registerButtonText: { color: Colors.primary, fontSize: Sizes.fontSize.lg, fontWeight: 'bold' },
 
   signInButton: { backgroundColor: 'rgba(255, 255, 255, 0.9)', borderWidth: 2, borderColor: Colors.primary, paddingVertical: Sizes.lg, borderRadius: Sizes.radius.lg, alignItems: 'center', shadowColor: Colors.shadow.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 4 },
   signInButtonText: { color: Colors.primary, fontSize: Sizes.fontSize.lg, fontWeight: 'bold' },
@@ -50,14 +47,6 @@ export const authStyles = StyleSheet.create({
   errorContainer: { marginTop: 10, marginBottom: 10 },
   errorText: { color: '#ff6b6b', fontSize: 14, textAlign: 'center', fontWeight: '500' },
   
-  // Header styles
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Sizes.lg, paddingVertical: Sizes.md, backgroundColor: 'rgba(255, 255, 255, 0.95)' },
-  headerTitle: { fontSize: Sizes.fontSize.xl, fontWeight: 'bold', color: Colors.text, textAlign: 'center', flex: 1 },
-  backButtonText: { fontSize: Sizes.fontSize.md, color: Colors.primary, fontWeight: '600' },
-  
-  // Content styles
-  content: { flex: 1, paddingHorizontal: Sizes.lg, paddingTop: Sizes.lg },
-  title: { fontSize: Sizes.fontSize.xxl, fontWeight: 'bold', color: Colors.text, textAlign: 'center', marginBottom: Sizes.sm },
   subtitle: { fontSize: Sizes.fontSize.md, color: Colors.textSecondary, textAlign: 'center', marginBottom: Sizes.xl, lineHeight: 22 },
   
   // Sign in container

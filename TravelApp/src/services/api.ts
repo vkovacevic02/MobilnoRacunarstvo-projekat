@@ -65,18 +65,14 @@ class ApiService {
     return response.data.data;
   }
 
-  async register(userData: RegisterRequest): Promise<AuthResponse> {
-    const response = await this.api.post<ApiResponse<AuthResponse>>(
+  async register(userData: RegisterRequest): Promise<any> {
+    const response = await this.api.post<ApiResponse<any>>(
       API_CONFIG.ENDPOINTS.REGISTER,
       userData
     );
     
-    if (response.data.success) {
-      await AsyncStorage.setItem('auth_token', response.data.data.token);
-      await AsyncStorage.setItem('user_data', JSON.stringify(response.data.data.user));
-    }
-    
-    return response.data.data;
+    // Registracija ne vraća token, samo user podatke
+    return response.data;
   }
 
   async logout(): Promise<void> {

@@ -71,16 +71,8 @@ class LogovanjeController extends ResponseController
             'role' => $request->role ?? User::ROLE_PUTNIK
         ]);
 
-        // Generiši i pošalji verifikacioni kod
-        try {
-            $verificationCode = EmailVerificationCode::createForEmail($request->email);
-            Mail::to($request->email)->send(new EmailVerificationMail($request->email, $verificationCode->code));
-        } catch (\Exception $e) {
-            // Ako slanje email-a ne uspe, vrati grešku
-            return $this->neuspesno('Došlo je do greške prilikom slanja verifikacionog koda. Molimo pokušajte ponovo.');
-        }
-
-        return $this->usepsno(new UserResurs($user), 'Uspešno ste se registrovali. Proverite vaš email za verifikacioni kod.');
+        // Registracija je uspešna - ne šaljemo email za verifikaciju
+        return $this->usepsno(new UserResurs($user), 'Uspešno ste se registrovali. Možete se sada prijaviti.');
     }
 
     public function sendPasswordResetEmail(Request $request): \Illuminate\Http\JsonResponse

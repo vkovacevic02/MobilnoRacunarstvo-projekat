@@ -92,10 +92,12 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  name: string;
+  ime: string;
+  prezime: string;
   email: string;
   password: string;
-  password_confirmation: string;
+  telefon: string;
+  role?: string;
 }
 
 export interface AuthResponse {

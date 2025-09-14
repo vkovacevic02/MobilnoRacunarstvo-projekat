@@ -11,7 +11,6 @@ import SuccessScreen from './src/components/SuccessScreen';
 import DestinationsList from './src/components/DestinationsList';
 import DestinationDetail from './src/components/DestinationDetail';
 import SignInScreen from './src/components/SignInScreen';
-import EmailVerificationScreen from './src/components/EmailVerificationScreen';
 import { Putovanje } from './src/types';
 import api from './src/services/api';
 
@@ -25,13 +24,11 @@ export default function App() {
   const [showDestinations, setShowDestinations] = useState(false);
   const [showDestinationDetail, setShowDestinationDetail] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
-  const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [sentCode, setSentCode] = useState('');
   const [selectedDestination, setSelectedDestination] = useState<Putovanje | null>(null);
-  const [signInEmail, setSignInEmail] = useState('');
 
   const handleGetStarted = () => {
     setShowOnboarding(false);
@@ -90,13 +87,10 @@ export default function App() {
 
   const handleSuccessContinue = async () => {
     try {
-      // Odjavi korisnika sa servera
       await api.logout();
     } catch (error) {
-      // Ignoriši greške pri logout-u, i dalje ćemo očistiti lokalno stanje
-      console.log('Logout error:', error);
+      // Ignoriši greške pri logout-u
     } finally {
-      // Očisti sve stanje i vrati na login
       setShowSuccess(false);
       setShowLogin(true);
       setResetEmail('');
@@ -137,24 +131,11 @@ export default function App() {
     setShowLogin(true);
   };
 
-  const handleSignInSuccess = (email: string) => {
-    console.log('handleSignInSuccess pozvan sa email:', email);
-    setSignInEmail(email);
+  const handleSignInSuccess = () => {
     setShowSignIn(false);
-    setShowEmailVerification(true);
-    console.log('State postavljen - showEmailVerification:', true, 'email:', email);
-  };
-
-  const handleBackToSignIn = () => {
-    setShowEmailVerification(false);
-    setShowSignIn(true);
-  };
-
-  const handleEmailVerificationSuccess = () => {
-    setShowEmailVerification(false);
     setShowLogin(true);
-    setSignInEmail('');
   };
+
 
   if (showOnboarding) {
     return <OnboardingScreen onGetStarted={handleGetStarted} />;
@@ -220,15 +201,6 @@ export default function App() {
     );
   }
 
-  if (showEmailVerification) {
-    return (
-      <EmailVerificationScreen 
-        email={signInEmail}
-        onBack={handleBackToSignIn}
-        onVerificationSuccess={handleEmailVerificationSuccess}
-      />
-    );
-  }
 
   if (showSignIn) {
     return (
