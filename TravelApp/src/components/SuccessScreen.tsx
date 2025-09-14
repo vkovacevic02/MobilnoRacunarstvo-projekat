@@ -6,9 +6,16 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { Colors } from '../constants/colors';
 import { Sizes } from '../constants/sizes';
+import { Images } from '../constants/images';
+import { authStyles } from '../styles/authStyles';
+import Ionicons from '@expo/vector-icons/Ionicons';
+
+const { height } = Dimensions.get('window');
 
 interface SuccessScreenProps {
   title: string;
@@ -19,53 +26,52 @@ interface SuccessScreenProps {
 
 export default function SuccessScreen({ title, message, buttonText, onButtonPress }: SuccessScreenProps) {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={authStyles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
-      {/* Content */}
-      <View style={styles.content}>
-        {/* Success Icon */}
-        <View style={styles.iconContainer}>
+      {/* Background Image */}
+      <View style={authStyles.imageContainer}>
+        <Image
+          source={{ uri: Images.auth.loginBg }}
+          style={authStyles.backgroundImage}
+          resizeMode="cover"
+        />
+      </View>
+
+      {/* Content Overlay */}
+      <View style={authStyles.contentOverlay}>
+        {/* Logo and Branding */}
+        <View style={authStyles.logoContainer}>
           <View style={styles.successIcon}>
-            <Text style={styles.checkmarkIcon}>✓</Text>
+            <Ionicons name="checkmark-circle" size={60} color={Colors.success} />
           </View>
+          <Text style={authStyles.brandName}>{title}</Text>
+          <Text style={authStyles.brandSubtitle}>Travel Agency</Text>
         </View>
 
-        <Text style={styles.title}>{title}</Text>
-        
-        <Text style={styles.message}>{message}</Text>
+        {/* Form Container */}
+        <View style={authStyles.formContainer}>
+          <Text style={authStyles.subtitle}>{message}</Text>
 
-        {/* Continue Button */}
-        <TouchableOpacity style={styles.continueButton} onPress={onButtonPress}>
-          <Text style={styles.continueButtonText}>{buttonText}</Text>
-        </TouchableOpacity>
+          {/* Continue Button */}
+          <TouchableOpacity style={authStyles.loginButton} onPress={onButtonPress}>
+            <Text style={authStyles.loginButtonText}>{buttonText}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.primary,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: Sizes.lg,
-    paddingTop: Sizes.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconContainer: {
-    marginBottom: Sizes.xl,
-  },
   successIcon: {
     width: 100,
     height: 100,
-    backgroundColor: Colors.secondary,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: Sizes.md,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -74,40 +80,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
-  },
-  checkmarkIcon: {
-    fontSize: 50,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: Sizes.lg,
-  },
-  message: {
-    fontSize: Sizes.fontSize.md,
-    color: 'rgba(255, 255, 255, 0.9)',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: Sizes.xl,
-    paddingHorizontal: Sizes.lg,
-  },
-  continueButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: 'white',
-    paddingVertical: Sizes.lg,
-    paddingHorizontal: Sizes.xl,
-    borderRadius: Sizes.radius.lg,
-    alignItems: 'center',
-    minWidth: 200,
-  },
-  continueButtonText: {
-    color: 'white',
-    fontSize: Sizes.fontSize.lg,
-    fontWeight: 'bold',
   },
 });

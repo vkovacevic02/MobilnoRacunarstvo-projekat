@@ -9,18 +9,26 @@ import {
   StatusBar,
   Alert,
   ActivityIndicator,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { Colors } from '../constants/colors';
 import { Sizes } from '../constants/sizes';
+import { Images } from '../constants/images';
+import { authStyles } from '../styles/authStyles';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import api from '../services/api';
+
+const { height } = Dimensions.get('window');
 
 interface EnterCodeScreenProps {
   email: string;
+  sentCode: string;
   onBack: () => void;
   onCodeVerified: (code: string) => void;
 }
 
-export default function EnterCodeScreen({ email, onBack, onCodeVerified }: EnterCodeScreenProps) {
+export default function EnterCodeScreen({ email, sentCode, onBack, onCodeVerified }: EnterCodeScreenProps) {
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -61,141 +69,129 @@ export default function EnterCodeScreen({ email, onBack, onCodeVerified }: Enter
       await api.verifyResetCode(email, fullCode);
       onCodeVerified(fullCode);
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Neispravan kod. Molimo pokušajte ponovo.');
+      setError('Uneli ste pogrešan kod. Molimo pokušajte ponovo.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResendCode = async () => {
-    setLoading(true);
-    try {
-      await api.sendPasswordResetEmail(email);
-      Alert.alert('Uspešno', 'Novi kod je poslat na vaš email');
-    } catch (error: any) {
-      Alert.alert('Greška', error.response?.data?.message || 'Došlo je do greške. Molimo pokušajte ponovo.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={authStyles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <Text style={styles.backButtonText}>← Nazad</Text>
+      {/* Background Image */}
+      <View style={authStyles.imageContainer}>
+        <Image
+          source={{ uri: Images.auth.loginBg }}
+          style={authStyles.backgroundImage}
+          resizeMode="cover"
+        />
+        
+        {/* Back Button */}
+        <TouchableOpacity style={authStyles.backButton} onPress={onBack}>
+          <Ionicons name="chevron-back" size={24} color={Colors.primary} />
         </TouchableOpacity>
       </View>
 
-      {/* Content */}
-      <View style={styles.content}>
-        <Text style={styles.title}>Unesite kod</Text>
-        
-        <Text style={styles.description}>
-          Poslali smo 6-cifreni kod na vaš email adresu:
-        </Text>
-        
-        <Text style={styles.emailText}>{email}</Text>
-
-        {/* Code Input */}
-        <View style={styles.codeContainer}>
-          {code.map((digit, index) => (
-            <TextInput
-              key={index}
-              ref={(ref) => {
-                if (ref) inputRefs.current[index] = ref;
-              }}
-              style={[styles.codeInput, error && styles.codeInputError]}
-              value={digit}
-              onChangeText={(value) => handleCodeChange(value, index)}
-              onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
-              keyboardType="numeric"
-              maxLength={1}
-              textAlign="center"
-              selectTextOnFocus
-            />
-          ))}
+      {/* Content Overlay */}
+      <View style={authStyles.contentOverlay}>
+        {/* Logo and Branding */}
+        <View style={authStyles.logoContainer}>
+          <View style={authStyles.logoCircle}>
+            <Ionicons name="key-outline" size={40} color={Colors.primary} />
+          </View>
+          <Text style={authStyles.brandName}>Unesite kod</Text>
+          <Text style={authStyles.brandSubtitle}>Travel Agency</Text>
         </View>
 
-        {/* Error Message */}
-        {error ? (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
+        {/* Form Container */}
+        <View style={authStyles.formContainer}>
+          <Text style={authStyles.subtitle}>
+            Poslali smo 6-cifreni kod na vaš email adresu:
+          </Text>
+          
+          <Text style={styles.emailText}>{email}</Text>
+
+          {/* Show the sent code */}
+          <View style={styles.codeDisplayContainer}>
+            <Text style={styles.codeDisplayLabel}>Poslani kod:</Text>
+            <Text style={styles.codeDisplayText}>{sentCode}</Text>
           </View>
-        ) : null}
 
-        {/* Verify Button */}
-        <TouchableOpacity 
-          style={[styles.verifyButton, loading && styles.verifyButtonDisabled]} 
-          onPress={handleVerifyCode}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="white" size="small" />
-          ) : (
-            <Text style={styles.verifyButtonText}>Potvrdi kod</Text>
-          )}
-        </TouchableOpacity>
+          {/* Code Input */}
+          <View style={styles.codeContainer}>
+            {code.map((digit, index) => (
+              <TextInput
+                key={index}
+                ref={(ref) => {
+                  if (ref) inputRefs.current[index] = ref;
+                }}
+                style={[styles.codeInput, error && styles.codeInputError]}
+                value={digit}
+                onChangeText={(value) => handleCodeChange(value, index)}
+                onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
+                keyboardType="numeric"
+                maxLength={1}
+                textAlign="center"
+                selectTextOnFocus
+              />
+            ))}
+          </View>
 
-        {/* Resend Code */}
-        <TouchableOpacity style={styles.resendContainer} onPress={handleResendCode}>
-          <Text style={styles.resendText}>Niste primili kod? Pošaljite ponovo</Text>
-        </TouchableOpacity>
+          {/* Error Message */}
+          {error ? (
+            <View style={authStyles.errorContainer}>
+              <Text style={authStyles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+
+          {/* Verify Button */}
+          <TouchableOpacity 
+            style={[authStyles.loginButton, loading && authStyles.loginButtonDisabled]} 
+            onPress={handleVerifyCode}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="white" size="small" />
+            ) : (
+              <Text style={authStyles.loginButtonText}>Potvrdi kod</Text>
+            )}
+          </TouchableOpacity>
+
+        </View>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Sizes.lg,
-    paddingTop: 50,
-    paddingBottom: Sizes.lg,
-  },
-  backButton: {
-    padding: Sizes.sm,
-  },
-  backButtonText: {
-    color: 'white',
-    fontSize: Sizes.fontSize.md,
-    fontWeight: '500',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: Sizes.lg,
-    paddingTop: Sizes.lg,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: Sizes.lg,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: Sizes.fontSize.md,
-    color: 'rgba(255, 255, 255, 0.9)',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: Sizes.sm,
-    paddingHorizontal: Sizes.lg,
-  },
   emailText: {
     fontSize: Sizes.fontSize.md,
     color: Colors.secondary,
     fontWeight: 'bold',
-    marginBottom: Sizes.xl,
+    marginBottom: Sizes.lg,
     textAlign: 'center',
+  },
+  codeDisplayContainer: {
+    backgroundColor: Colors.surface,
+    padding: Sizes.lg,
+    borderRadius: Sizes.radius.md,
+    marginBottom: Sizes.xl,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  codeDisplayLabel: {
+    fontSize: Sizes.fontSize.sm,
+    color: Colors.textSecondary,
+    marginBottom: Sizes.sm,
+  },
+  codeDisplayText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Colors.text,
+    letterSpacing: 4,
   },
   codeContainer: {
     flexDirection: 'row',
@@ -206,53 +202,16 @@ const styles = StyleSheet.create({
   codeInput: {
     width: 45,
     height: 55,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: Colors.surface,
     borderRadius: Sizes.radius.md,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: Colors.border,
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: Colors.text,
     textAlign: 'center',
   },
   codeInputError: {
     borderColor: '#ff6b6b',
-  },
-  errorContainer: {
-    marginBottom: Sizes.lg,
-  },
-  errorText: {
-    color: '#ff6b6b',
-    fontSize: Sizes.fontSize.sm,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  verifyButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: 'white',
-    paddingVertical: Sizes.lg,
-    paddingHorizontal: Sizes.xl,
-    borderRadius: Sizes.radius.lg,
-    alignItems: 'center',
-    marginBottom: Sizes.lg,
-    minWidth: 200,
-  },
-  verifyButtonDisabled: {
-    opacity: 0.6,
-  },
-  verifyButtonText: {
-    color: 'white',
-    fontSize: Sizes.fontSize.lg,
-    fontWeight: 'bold',
-  },
-  resendContainer: {
-    marginTop: Sizes.lg,
-  },
-  resendText: {
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: Sizes.fontSize.sm,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
   },
 });

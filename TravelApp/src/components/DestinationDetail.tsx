@@ -10,6 +10,7 @@ import {
   StatusBar,
   SafeAreaView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
 import { Sizes } from '../constants/sizes';
 import api from '../services/api';
@@ -26,6 +27,7 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
   const [aranzmani, setAranzmani] = useState<Aranzman[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   const loadAranzmani = async () => {
     try {
@@ -68,10 +70,7 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
         {/* Navigacioni dugmići */}
         <View style={styles.navigationContainer}>
           <TouchableOpacity style={styles.backButton} onPress={onBack}>
-            <Text style={styles.backIcon}>‹</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.favoriteButton}>
-            <Text style={styles.favoriteIcon}>♡</Text>
+            <Ionicons name="chevron-back" size={24} color={Colors.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -96,26 +95,30 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
           {/* Sadržaji */}
           <View style={styles.amenitiesContainer}>
             <View style={styles.amenityTag}>
-              <Text style={styles.amenityIcon}>🛏️</Text>
+              <Ionicons name="bed-outline" size={20} color={Colors.primary} style={{ marginRight: 4 }} />
               <Text style={styles.amenityText}>4 Rooms</Text>
             </View>
             <View style={styles.amenityTag}>
-              <Text style={styles.amenityIcon}>🏊</Text>
+              <Ionicons name="water-outline" size={20} color={Colors.primary} style={{ marginRight: 4 }} />
               <Text style={styles.amenityText}>Pool</Text>
             </View>
             <View style={styles.amenityTag}>
-              <Text style={styles.amenityIcon}>🏊‍♂️</Text>
-              <Text style={styles.amenityText}>Pool</Text>
+              <Ionicons name="restaurant-outline" size={20} color={Colors.primary} style={{ marginRight: 4 }} />
+              <Text style={styles.amenityText}>Restaurant</Text>
             </View>
           </View>
 
           {/* Opis */}
           <View style={styles.descriptionContainer}>
             <Text style={styles.descriptionTitle}>Description</Text>
-            <Text style={styles.descriptionText}>
+            <Text style={styles.descriptionText} numberOfLines={showFullDescription ? undefined : 3}>
               {destination.opis}
             </Text>
-            <Text style={styles.readMore}>Read more..</Text>
+            <TouchableOpacity onPress={() => setShowFullDescription(!showFullDescription)}>
+              <Text style={styles.readMore}>
+                {showFullDescription ? 'Read less..' : 'Read more..'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* Aranžmani */}
@@ -183,6 +186,7 @@ const styles = StyleSheet.create({
   headerImage: {
     width: '100%',
     height: '100%',
+    opacity: 0.8,
   },
   navigationContainer: {
     position: 'absolute',
@@ -200,23 +204,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 24,
-    color: Colors.text,
-    fontWeight: 'bold',
-  },
-  favoriteButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  favoriteIcon: {
-    fontSize: 20,
-    color: Colors.text,
   },
   contentContainer: {
     flex: 1,
@@ -279,10 +266,6 @@ const styles = StyleSheet.create({
     marginRight: Sizes.sm,
     marginBottom: Sizes.sm,
   },
-  amenityIcon: {
-    fontSize: Sizes.fontSize.sm,
-    marginRight: 4,
-  },
   amenityText: {
     fontSize: Sizes.fontSize.sm,
     color: Colors.text,
@@ -305,6 +288,7 @@ const styles = StyleSheet.create({
     fontSize: Sizes.fontSize.md,
     color: Colors.primary,
     marginTop: Sizes.xs,
+    fontWeight: '600',
   },
   arrangementsContainer: {
     marginTop: Sizes.lg,

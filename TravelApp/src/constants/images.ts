@@ -1,7 +1,7 @@
 export const Images = {
   auth: {
-    loginBg: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1920&auto=format&fit=crop',
-    registerBg: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1920&auto=format&fit=crop',
+    loginBg: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+    registerBg: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
     forgotBg: 'https://images.unsplash.com/photo-1522444195799-478538b28823?q=80&w=1920&auto=format&fit=crop',
   },
   destinations: {

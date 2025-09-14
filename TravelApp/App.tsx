@@ -1,70 +1,37 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import {
-  StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList,
-  ActivityIndicator, Image, Dimensions
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from './src/constants/colors';
 import { Sizes } from './src/constants/sizes';
-import api from './src/services/api';
-import { Putovanje } from './src/types';
-import DestinationDetail from './src/components/DestinationDetail';
 import OnboardingScreen from './src/components/OnboardingScreen';
 import LoginScreen from './src/components/LoginScreen';
 import ResetPasswordScreen from './src/components/ResetPasswordScreen';
 import EnterCodeScreen from './src/components/EnterCodeScreen';
 import CreateNewPasswordScreen from './src/components/CreateNewPasswordScreen';
-import SignInScreen from './src/components/SignInScreen';
 import SuccessScreen from './src/components/SuccessScreen';
-
-const { width } = Dimensions.get('window');
-
-// === NOVO: dinamičan broj kolona i proračun širine kartice ===
-const SCREEN_PADDING = Sizes.md * 2;          // levo+desno padding ScrollView-a
-const GUTTER = Sizes.md;                       // razmak između kartica
-const COLUMNS = width >= 820 ? 4 : width >= 600 ? 3 : 3; // 3 kol. na mobu, 4 na tabletima
-const CARD_WIDTH = Math.floor((width - SCREEN_PADDING - GUTTER * (COLUMNS - 1)) / COLUMNS);
+import DestinationsList from './src/components/DestinationsList';
+import DestinationDetail from './src/components/DestinationDetail';
+import SignInScreen from './src/components/SignInScreen';
+import EmailVerificationScreen from './src/components/EmailVerificationScreen';
+import { Putovanje } from './src/types';
+import api from './src/services/api';
 
 export default function App() {
-  const [putovanja, setPutovanja] = useState<Putovanje[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedDestination, setSelectedDestination] = useState<Putovanje | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
-  const [showSignIn, setShowSignIn] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [showEnterCode, setShowEnterCode] = useState(false);
   const [showCreatePassword, setShowCreatePassword] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showDestinations, setShowDestinations] = useState(false);
+  const [showDestinationDetail, setShowDestinationDetail] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetCode, setResetCode] = useState('');
-
-
-  const loadPutovanja = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await api.getPutovanja();
-      setPutovanja(data);
-    } catch (e: any) {
-      console.error('Greška pri učitavanju:', e);
-      setError(`Greška pri učitavanju putovanja: ${e.message || e}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Uklonjen useEffect - destinacije se učitavaju tek kada korisnik klikne "Dobrodošli"
-
-  const handleDestinationPress = (destination: Putovanje) => {
-    setSelectedDestination(destination);
-  };
-
-  const handleBackToList = () => {
-    setSelectedDestination(null);
-  };
+  const [sentCode, setSentCode] = useState('');
+  const [selectedDestination, setSelectedDestination] = useState<Putovanje | null>(null);
+  const [signInEmail, setSignInEmail] = useState('');
 
   const handleGetStarted = () => {
     setShowOnboarding(false);
@@ -73,8 +40,8 @@ export default function App() {
 
   const handleLoginSuccess = () => {
     setShowLogin(false);
+    setShowDestinations(true);
     setIsAuthenticated(true);
-    loadPutovanja(); // Učitaj destinacije nakon uspešne prijave
   };
 
   const handleBackToOnboarding = () => {
@@ -88,17 +55,17 @@ export default function App() {
     setShowResetPassword(true);
   };
 
-  const handleEmailSent = (email: string) => {
+  const handleEmailSent = (email: string, code: string) => {
     setResetEmail(email);
+    setSentCode(code);
     setShowResetPassword(false);
     setShowEnterCode(true);
   };
 
-  const handleBackToReset = () => {
-    setShowEnterCode(false);
-    setShowResetPassword(true);
+  const handleBackToLoginFromReset = () => {
+    setShowResetPassword(false);
+    setShowLogin(true);
   };
-
 
   const handleBackToEmailFromCode = () => {
     setShowEnterCode(false);
@@ -121,96 +88,123 @@ export default function App() {
     setShowSuccess(true);
   };
 
-  const handleSuccessContinue = () => {
-    setShowSuccess(false);
-    setShowLogin(true);
-    setResetEmail('');
-    setResetCode('');
+  const handleSuccessContinue = async () => {
+    try {
+      // Odjavi korisnika sa servera
+      await api.logout();
+    } catch (error) {
+      // Ignoriši greške pri logout-u, i dalje ćemo očistiti lokalno stanje
+      console.log('Logout error:', error);
+    } finally {
+      // Očisti sve stanje i vrati na login
+      setShowSuccess(false);
+      setShowLogin(true);
+      setResetEmail('');
+      setResetCode('');
+      setIsAuthenticated(false);
+    }
   };
 
-  const handleBackToLogin = () => {
-    setShowResetPassword(false);
-    setShowLogin(true);
+  // Destinations handlers
+  const handleDestinationSelect = (destination: Putovanje) => {
+    setSelectedDestination(destination);
+    setShowDestinations(false);
+    setShowDestinationDetail(true);
   };
 
-  // Sign In Handlers
+  const handleBackToDestinations = () => {
+    setShowDestinationDetail(false);
+    setShowDestinations(true);
+    setSelectedDestination(null);
+  };
+
+  const handleLogout = () => {
+    setShowDestinations(false);
+    setShowDestinationDetail(false);
+    setShowOnboarding(true);
+    setIsAuthenticated(false);
+    setSelectedDestination(null);
+  };
+
+  // Sign In handlers
   const handleShowSignIn = () => {
     setShowLogin(false);
     setShowSignIn(true);
   };
 
-  const handleSignInSuccess = () => {
+  const handleBackToLogin = () => {
     setShowSignIn(false);
     setShowLogin(true);
   };
 
-  const handleBackToLoginFromSignIn = () => {
+  const handleSignInSuccess = (email: string) => {
+    console.log('handleSignInSuccess pozvan sa email:', email);
+    setSignInEmail(email);
     setShowSignIn(false);
-    setShowLogin(true);
+    setShowEmailVerification(true);
+    console.log('State postavljen - showEmailVerification:', true, 'email:', email);
   };
-  
-  const renderItem = ({ item }: { item: Putovanje }) => (
-    <TouchableOpacity 
-      style={[styles.destCard, { width: CARD_WIDTH }]}
-      onPress={() => handleDestinationPress(item)}
-    >
-      <View style={[styles.imageContainer, { height: Math.round(CARD_WIDTH * 0.62) }]}>
-        <Image
-          source={{ uri: item.slika || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=300&fit=crop' }}
-          style={styles.destImage}
-          resizeMode="cover"
-        />
-        <TouchableOpacity style={styles.heartButton}>
-          <Text style={styles.heartIcon}>♡</Text>
-        </TouchableOpacity>
-        {item.cena ? (
-          <View style={styles.priceBadge}>
-            <Text style={styles.priceText}>{item.cena} €</Text>
-          </View>
-        ) : null}
-      </View>
-      <View style={styles.cardContent}>
-        <Text style={styles.destTitle} numberOfLines={1}>{item.nazivPutovanja}</Text>
-        <Text style={styles.destLocation} numberOfLines={1}>{item.lokacija}</Text>
-      </View>
-    </TouchableOpacity>
-  );
 
+  const handleBackToSignIn = () => {
+    setShowEmailVerification(false);
+    setShowSignIn(true);
+  };
 
-  // Ako je onboarding prikazan, prikaži onboarding
+  const handleEmailVerificationSuccess = () => {
+    setShowEmailVerification(false);
+    setShowLogin(true);
+    setSignInEmail('');
+  };
+
   if (showOnboarding) {
     return <OnboardingScreen onGetStarted={handleGetStarted} />;
   }
 
-  // Success Screen
+  if (showDestinationDetail && selectedDestination) {
+    return (
+      <DestinationDetail 
+        destination={selectedDestination}
+        onBack={handleBackToDestinations}
+      />
+    );
+  }
+
+  if (showDestinations) {
+    return (
+      <DestinationsList 
+        onDestinationSelect={handleDestinationSelect}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
   if (showSuccess) {
     return (
       <SuccessScreen 
         title="Uspešno!"
         message="Vaša lozinka je uspešno resetovana. Možete se sada prijaviti sa novom lozinkom."
-        buttonText="Idi na prijavu"
+        buttonText="Prijavi se"
         onButtonPress={handleSuccessContinue}
       />
     );
   }
 
-  // Password Reset Flow
   if (showResetPassword) {
     return (
       <ResetPasswordScreen 
-        onBack={handleBackToLogin}
+        onBack={handleBackToLoginFromReset}
         onEmailSent={handleEmailSent}
       />
     );
   }
 
-
   if (showEnterCode) {
     return (
       <EnterCodeScreen 
         email={resetEmail}
+        sentCode={sentCode}
         onBack={handleBackToEmailFromCode}
-        onCodeVerified={(code) => handleCodeVerified(code)}
+        onCodeVerified={handleCodeVerified}
       />
     );
   }
@@ -226,17 +220,25 @@ export default function App() {
     );
   }
 
-  // Ako je SignIn prikazan, prikaži SignIn
-  if (showSignIn) {
+  if (showEmailVerification) {
     return (
-      <SignInScreen 
-        onSignInSuccess={handleSignInSuccess}
-        onBack={handleBackToLoginFromSignIn}
+      <EmailVerificationScreen 
+        email={signInEmail}
+        onBack={handleBackToSignIn}
+        onVerificationSuccess={handleEmailVerificationSuccess}
       />
     );
   }
 
-  // Ako je login prikazan, prikaži login
+  if (showSignIn) {
+    return (
+      <SignInScreen 
+        onBack={handleBackToLogin}
+        onSignInSuccess={handleSignInSuccess}
+      />
+    );
+  }
+
   if (showLogin) {
     return (
       <LoginScreen 
@@ -248,108 +250,46 @@ export default function App() {
     );
   }
 
-  // Ako nije autentifikovan, vrati na login
-  if (!isAuthenticated) {
-    return <LoginScreen onLoginSuccess={handleLoginSuccess} onBack={handleBackToOnboarding} onForgotPassword={handleForgotPassword} onSignIn={handleShowSignIn} />;
-  }
-
-  // Ako je izabrana destinacija, prikaži detalje
-  if (selectedDestination) {
-    return (
-      <DestinationDetail 
-        destination={selectedDestination} 
-        onBack={handleBackToList}
-      />
-    );
-  }
-
-
   return (
     <View style={styles.container}>
-      <StatusBar style="auto" />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Vivir La Vida</Text>
-          <Text style={styles.subtitle}>Pronađite svoju sledeću destinaciju</Text>
-          <Text style={styles.welcomeText}>Dobrodošli! Uspešno ste se prijavili.</Text>
-        </View>
-
-        <View style={styles.listHeaderRow}>
-          <Text style={styles.sectionTitle}>Destinacije</Text>
-          <TouchableOpacity onPress={loadPutovanja} style={styles.reloadBtn}>
-            <Text style={styles.reloadText}>Osveži</Text>
-          </TouchableOpacity>
-        </View>
-
-        {loading && (
-          <View style={styles.center}>
-            <ActivityIndicator color={Colors.primary} size="large" />
-          </View>
-        )}
-        {error && <Text style={styles.errorText}>{error}</Text>}
-
-        {!loading && !error && putovanja.length === 0 && (
-          <View style={styles.center}>
-            <Text style={styles.destLocation}>Nema dostupnih destinacija.</Text>
-          </View>
-        )}
-
-        {!loading && !error && putovanja.length > 0 && (
-          <FlatList
-            data={putovanja}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={renderItem}
-            scrollEnabled={false}
-            numColumns={COLUMNS}                                 // ← više kolona
-            columnWrapperStyle={{ gap: GUTTER, justifyContent: 'flex-start' }} // ← razmak između kartica
-            ItemSeparatorComponent={() => <View style={{ height: GUTTER }} />}
-          />
-        )}
-      </ScrollView>
+      <Text style={styles.title}>Uspešno ste se prijavili! 🎉</Text>
+      <TouchableOpacity style={styles.button} onPress={() => setShowOnboarding(true)}>
+        <Text style={styles.buttonText}>Nazad na početak</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scrollContent: { flexGrow: 1, padding: Sizes.md },
-  header: { alignItems: 'center', marginBottom: Sizes.xl, paddingTop: Sizes.xxl },
-  title: { fontSize: Sizes.fontSize.xxxl, fontWeight: 'bold', color: Colors.primary, marginBottom: Sizes.sm },
-  subtitle: { fontSize: Sizes.fontSize.lg, color: Colors.textSecondary, textAlign: 'center' },
-  welcomeText: { fontSize: Sizes.fontSize.sm, color: Colors.success, textAlign: 'center', marginTop: Sizes.sm, fontWeight: 'bold' },
-  listHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Sizes.md },
-  sectionTitle: { fontSize: Sizes.fontSize.xl, fontWeight: 'bold', color: Colors.text, marginBottom: Sizes.md },
-  reloadBtn: { backgroundColor: Colors.primary, paddingVertical: Sizes.xs, paddingHorizontal: Sizes.md, borderRadius: Sizes.radius.md },
-  reloadText: { color: Colors.background, fontWeight: 'bold' },
-  center: { alignItems: 'center', justifyContent: 'center', paddingVertical: Sizes.lg },
-  errorText: { color: Colors.error, marginBottom: Sizes.md },
-
-  // kartica
-  destCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: Sizes.radius.lg,
-    overflow: 'hidden',
-    shadowColor: Colors.shadow.medium,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+    padding: Sizes.lg,
   },
-  imageContainer: { position: 'relative' },
-  destImage: { width: '100%', height: '100%' },
-  heartButton: {
-    position: 'absolute', top: Sizes.sm, right: Sizes.sm,
-    width: 32, height: 32, borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.9)', alignItems: 'center', justifyContent: 'center',
+  title: {
+    fontSize: Sizes.fontSize.xxxl,
+    fontWeight: 'bold',
+    color: Colors.primary,
+    marginBottom: Sizes.sm,
+    textAlign: 'center',
   },
-  heartIcon: { fontSize: 16, color: Colors.text },
-  priceBadge: {
-    position: 'absolute', bottom: Sizes.sm, right: Sizes.sm,
-    backgroundColor: Colors.primary, paddingHorizontal: Sizes.sm, paddingVertical: Sizes.xs,
-    borderRadius: Sizes.radius.sm,
+  subtitle: {
+    fontSize: Sizes.fontSize.lg,
+    color: Colors.textSecondary,
+    marginBottom: Sizes.xl,
+    textAlign: 'center',
   },
-  priceText: { color: Colors.background, fontSize: Sizes.fontSize.sm, fontWeight: 'bold' },
-  cardContent: { padding: Sizes.md },
-  destTitle: { fontSize: Sizes.fontSize.md, fontWeight: 'bold', color: Colors.text, marginBottom: Sizes.xs },
-  destLocation: { fontSize: Sizes.fontSize.sm, color: Colors.textSecondary },
+  button: {
+    backgroundColor: Colors.primary,
+    paddingVertical: Sizes.md,
+    paddingHorizontal: Sizes.lg,
+    borderRadius: Sizes.radius.md,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: Sizes.fontSize.md,
+    fontWeight: 'bold',
+  },
 });

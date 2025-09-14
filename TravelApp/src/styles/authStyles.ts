@@ -8,9 +8,9 @@ export const authStyles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   imageContainer: { flex: 1, position: 'relative' },
   backgroundImage: { width: '100%', height: '100%' },
-  backButton: { position: 'absolute', top: 50, left: 20, width: 40, height: 40, borderRadius: 20, backgroundColor: '#FFFFFFB3', alignItems: 'center', justifyContent: 'center' },
+  backButton: { position: 'absolute', top: 50, left: 20, width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255, 255, 255, 0.9)', alignItems: 'center', justifyContent: 'center' },
   backIcon: { fontSize: 24, color: Colors.primary, fontWeight: 'bold' },
-  contentOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#FFFFFFE6', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: Sizes.lg, paddingTop: Sizes.xl, paddingBottom: Sizes.xxl, minHeight: height * 0.6 },
+  contentOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(255, 255, 255, 0.85)', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: Sizes.lg, paddingTop: Sizes.xl, paddingBottom: Sizes.xxl, minHeight: height * 0.6 },
 
   logoContainer: { alignItems: 'center', marginBottom: Sizes.xl },
   logoCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#EBF5FF', alignItems: 'center', justifyContent: 'center', marginBottom: Sizes.md },
@@ -22,11 +22,13 @@ export const authStyles = StyleSheet.create({
 
   formContainer: { flex: 1 },
   inputContainer: { marginBottom: Sizes.lg, position: 'relative' },
-  inputIcon: { position: 'absolute', left: 0, top: 0, fontSize: Sizes.fontSize.lg, zIndex: 1 },
-  textInput: { fontSize: Sizes.fontSize.md, color: Colors.text, paddingLeft: 30, paddingVertical: Sizes.sm, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  eyeButton: { position: 'absolute', right: 0, top: 0, padding: Sizes.sm },
+  inputIcon: { position: 'absolute', left: 8, top: 12, fontSize: Sizes.fontSize.lg, zIndex: 1 },
+  textInput: { fontSize: Sizes.fontSize.md, color: '#000000', paddingLeft: 30, paddingVertical: Sizes.sm, borderBottomWidth: 1, borderBottomColor: 'rgba(255, 255, 255, 0.3)', backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: 8, marginTop: 5 },
+  textInputError: { borderBottomColor: '#ff6b6b', backgroundColor: 'rgba(255, 107, 107, 0.1)' },
+  label: { fontSize: Sizes.fontSize.sm, color: Colors.text, fontWeight: '600', marginBottom: 5 },
+  eyeButton: { position: 'absolute', right: 8, top: 8, padding: Sizes.sm },
   eyeIcon: { fontSize: Sizes.fontSize.lg },
-  inputLine: { height: 1, backgroundColor: Colors.border, marginTop: Sizes.xs },
+  inputLine: { height: 1, backgroundColor: 'rgba(255, 255, 255, 0.3)', marginTop: Sizes.xs },
 
   forgotPasswordContainer: { alignItems: 'flex-end', marginBottom: Sizes.xl },
   forgotPasswordText: { color: Colors.textSecondary, fontSize: Sizes.fontSize.sm },
@@ -41,6 +43,26 @@ export const authStyles = StyleSheet.create({
 
   registerButton: { backgroundColor: 'transparent', borderWidth: 2, borderColor: Colors.primary, paddingVertical: Sizes.lg, borderRadius: Sizes.radius.lg, alignItems: 'center' },
   registerButtonText: { color: Colors.primary, fontSize: Sizes.fontSize.lg, fontWeight: 'bold' },
+
+  signInButton: { backgroundColor: 'rgba(255, 255, 255, 0.9)', borderWidth: 2, borderColor: Colors.primary, paddingVertical: Sizes.lg, borderRadius: Sizes.radius.lg, alignItems: 'center', shadowColor: Colors.shadow.dark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 4 },
+  signInButtonText: { color: Colors.primary, fontSize: Sizes.fontSize.lg, fontWeight: 'bold' },
+
+  errorContainer: { marginTop: 10, marginBottom: 10 },
+  errorText: { color: '#ff6b6b', fontSize: 14, textAlign: 'center', fontWeight: '500' },
+  
+  // Header styles
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Sizes.lg, paddingVertical: Sizes.md, backgroundColor: 'rgba(255, 255, 255, 0.95)' },
+  headerTitle: { fontSize: Sizes.fontSize.xl, fontWeight: 'bold', color: Colors.text, textAlign: 'center', flex: 1 },
+  backButtonText: { fontSize: Sizes.fontSize.md, color: Colors.primary, fontWeight: '600' },
+  
+  // Content styles
+  content: { flex: 1, paddingHorizontal: Sizes.lg, paddingTop: Sizes.lg },
+  title: { fontSize: Sizes.fontSize.xxl, fontWeight: 'bold', color: Colors.text, textAlign: 'center', marginBottom: Sizes.sm },
+  subtitle: { fontSize: Sizes.fontSize.md, color: Colors.textSecondary, textAlign: 'center', marginBottom: Sizes.xl, lineHeight: 22 },
+  
+  // Sign in container
+  signInContainer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: Sizes.lg },
+  signInText: { fontSize: Sizes.fontSize.sm, color: Colors.textSecondary },
 });
 
 

@@ -8,10 +8,17 @@ import {
   SafeAreaView,
   StatusBar,
   Alert,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { Colors } from '../constants/colors';
 import { Sizes } from '../constants/sizes';
+import { Images } from '../constants/images';
+import { authStyles } from '../styles/authStyles';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import api from '../services/api';
+
+const { height } = Dimensions.get('window');
 
 interface CreateNewPasswordScreenProps {
   email: string;
@@ -56,32 +63,47 @@ export default function CreateNewPasswordScreen({ email, code, onBack, onPasswor
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={authStyles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <Text style={styles.backButtonText}>← Nazad</Text>
+      {/* Background Image */}
+      <View style={authStyles.imageContainer}>
+        <Image
+          source={{ uri: Images.auth.loginBg }}
+          style={authStyles.backgroundImage}
+          resizeMode="cover"
+        />
+        
+        {/* Back Button */}
+        <TouchableOpacity style={authStyles.backButton} onPress={onBack}>
+          <Ionicons name="chevron-back" size={24} color={Colors.primary} />
         </TouchableOpacity>
       </View>
 
-      {/* Content */}
-      <View style={styles.content}>
-        <Text style={styles.title}>Kreiraj novu lozinku</Text>
-        
-        <Text style={styles.description}>
-          Vaša nova lozinka mora biti drugačija od prethodno korišćenih lozinki.
-        </Text>
+      {/* Content Overlay */}
+      <View style={authStyles.contentOverlay}>
+        {/* Logo and Branding */}
+        <View style={authStyles.logoContainer}>
+          <View style={authStyles.logoCircle}>
+            <Ionicons name="shield-checkmark-outline" size={40} color={Colors.primary} />
+          </View>
+          <Text style={authStyles.brandName}>Kreiraj novu lozinku</Text>
+          <Text style={authStyles.brandSubtitle}>Travel Agency</Text>
+        </View>
 
-        {/* Password Input */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Lozinka</Text>
-          <View style={styles.passwordInputContainer}>
+        {/* Form Container */}
+        <View style={authStyles.formContainer}>
+          <Text style={authStyles.subtitle}>
+            Vaša nova lozinka mora biti drugačija od prethodno korišćenih lozinki.
+          </Text>
+
+          {/* Password Input */}
+          <View style={authStyles.inputContainer}>
+            <Ionicons style={authStyles.inputIcon} name="lock-closed-outline" size={Sizes.icon.md} color={Colors.textSecondary} />
             <TextInput
-              style={styles.textInput}
-              placeholder="Unesite novu lozinku"
-              placeholderTextColor="rgba(255, 255, 255, 0.7)"
+              style={authStyles.textInput}
+              placeholder="Lozinka"
+              placeholderTextColor="rgba(0, 0, 0, 0.6)"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -89,23 +111,22 @@ export default function CreateNewPasswordScreen({ email, code, onBack, onPasswor
               autoCorrect={false}
             />
             <TouchableOpacity 
-              style={styles.eyeButton}
+              style={authStyles.eyeButton}
               onPress={() => setShowPassword(!showPassword)}
             >
-              <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+              <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={Sizes.icon.md} color={Colors.textSecondary} />
             </TouchableOpacity>
+            <View style={authStyles.inputLine} />
           </View>
           <Text style={styles.passwordHint}>Mora imati najmanje 8 karaktera.</Text>
-        </View>
 
-        {/* Confirm Password Input */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Potvrdi lozinku</Text>
-          <View style={styles.passwordInputContainer}>
+          {/* Confirm Password Input */}
+          <View style={authStyles.inputContainer}>
+            <Ionicons style={authStyles.inputIcon} name="lock-closed-outline" size={Sizes.icon.md} color={Colors.textSecondary} />
             <TextInput
-              style={styles.textInput}
-              placeholder="Potvrdite novu lozinku"
-              placeholderTextColor="rgba(255, 255, 255, 0.7)"
+              style={authStyles.textInput}
+              placeholder="Potvrdi lozinku"
+              placeholderTextColor="rgba(0, 0, 0, 0.6)"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
@@ -113,118 +134,36 @@ export default function CreateNewPasswordScreen({ email, code, onBack, onPasswor
               autoCorrect={false}
             />
             <TouchableOpacity 
-              style={styles.eyeButton}
+              style={authStyles.eyeButton}
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}
             >
-              <Text style={styles.eyeIcon}>{showConfirmPassword ? '👁️' : '👁️‍🗨️'}</Text>
+              <Ionicons name={showConfirmPassword ? 'eye' : 'eye-off'} size={Sizes.icon.md} color={Colors.textSecondary} />
             </TouchableOpacity>
+            <View style={authStyles.inputLine} />
           </View>
           <Text style={styles.passwordHint}>Obje lozinke se moraju poklapati.</Text>
-        </View>
 
-        {/* Reset Password Button */}
-        <TouchableOpacity 
-          style={[styles.resetButton, loading && styles.resetButtonDisabled]} 
-          onPress={handleResetPassword}
-          disabled={loading}
-        >
-          <Text style={styles.resetButtonText}>
-            {loading ? 'Resetuje se...' : 'Resetuj lozinku'}
-          </Text>
-        </TouchableOpacity>
+          {/* Reset Password Button */}
+          <TouchableOpacity 
+            style={[authStyles.loginButton, loading && authStyles.loginButtonDisabled]} 
+            onPress={handleResetPassword}
+            disabled={loading}
+          >
+            <Text style={authStyles.loginButtonText}>
+              {loading ? 'Resetuje se...' : 'Resetuj lozinku'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Sizes.lg,
-    paddingTop: 50,
-    paddingBottom: Sizes.lg,
-  },
-  backButton: {
-    padding: Sizes.sm,
-  },
-  backButtonText: {
-    color: 'white',
-    fontSize: Sizes.fontSize.md,
-    fontWeight: '500',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: Sizes.lg,
-    paddingTop: Sizes.lg,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: Sizes.lg,
-  },
-  description: {
-    fontSize: Sizes.fontSize.md,
-    color: 'rgba(255, 255, 255, 0.9)',
-    lineHeight: 24,
-    marginBottom: Sizes.xl,
-  },
-  inputContainer: {
-    marginBottom: Sizes.lg,
-  },
-  inputLabel: {
-    fontSize: Sizes.fontSize.md,
-    color: 'white',
-    marginBottom: Sizes.sm,
-    fontWeight: '500',
-  },
-  passwordInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: Sizes.radius.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  textInput: {
-    flex: 1,
-    paddingHorizontal: Sizes.lg,
-    paddingVertical: Sizes.md,
-    fontSize: Sizes.fontSize.md,
-    color: 'white',
-  },
-  eyeButton: {
-    padding: Sizes.sm,
-    marginRight: Sizes.sm,
-  },
-  eyeIcon: {
-    fontSize: 20,
-  },
   passwordHint: {
     fontSize: Sizes.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: Colors.textSecondary,
     marginTop: Sizes.xs,
-  },
-  resetButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: 'white',
-    paddingVertical: Sizes.lg,
-    borderRadius: Sizes.radius.lg,
-    alignItems: 'center',
-    marginTop: Sizes.lg,
-  },
-  resetButtonDisabled: {
-    opacity: 0.6,
-  },
-  resetButtonText: {
-    color: 'white',
-    fontSize: Sizes.fontSize.lg,
-    fontWeight: 'bold',
+    marginBottom: Sizes.md,
   },
 });

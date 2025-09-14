@@ -41,7 +41,7 @@ class PasswordResetMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            html: $this->getHtmlContent(),
+            htmlString: $this->getHtmlContent(),
         );
     }
 

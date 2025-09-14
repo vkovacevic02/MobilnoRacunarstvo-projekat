@@ -34,10 +34,6 @@ export default function OnboardingScreen({ onGetStarted }: OnboardingScreenProps
           resizeMode="cover"
         />
         
-        {/* Skip Button */}
-        <TouchableOpacity style={styles.skipButton}>
-          <Text style={styles.skipText}>Skip</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Content Overlay */}
@@ -73,26 +69,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  skipButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    paddingHorizontal: Sizes.md,
-    paddingVertical: Sizes.sm,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: Sizes.radius.md,
-  },
-  skipText: {
-    color: 'white',
-    fontSize: Sizes.fontSize.md,
-    fontWeight: '600',
-  },
   contentOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFFE6',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: Sizes.lg,
