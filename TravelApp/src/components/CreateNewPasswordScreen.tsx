@@ -15,7 +15,7 @@ import { Colors } from '../constants/colors';
 import { Sizes } from '../constants/sizes';
 import { Images } from '../constants/images';
 import { authStyles } from '../styles/authStyles';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
 
 const { height } = Dimensions.get('window');

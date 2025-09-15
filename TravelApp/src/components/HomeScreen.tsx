@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  Linking,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +15,7 @@ import { Colors } from '../constants/colors';
 import { Sizes } from '../constants/sizes';
 import { Putovanje, User, Aranzman } from '../types';
 import api from '../services/api';
+import { API_CONFIG } from '../constants/api';
 
 interface HomeScreenProps {
   onLogout: () => void;
@@ -276,7 +278,16 @@ export default function HomeScreen({ onLogout, onDestinationSelect }: HomeScreen
 
       {/* Trip Planning Section */}
       <View style={styles.planSection}>
-        <Text style={styles.planTitle}>Izaberite vašu destinaciju</Text>
+        <TouchableOpacity
+          style={styles.downloadButton}
+          onPress={() => {
+            const url = `${API_CONFIG.BASE_URL}/export/plans.pdf`;
+            Linking.openURL(url);
+          }}
+        >
+          <Ionicons name="download-outline" size={18} color="#fff" />
+          <Text style={styles.downloadButtonText}>Preuzmite plan aranžmana</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Destinations List */}
@@ -355,11 +366,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: Sizes.lg,
     paddingBottom: Sizes.lg,
   },
-  planTitle: {
-    fontSize: Sizes.fontSize.xl,
+  downloadButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  downloadButtonText: {
+    color: '#fff',
+    fontSize: Sizes.fontSize.md,
     fontWeight: '700',
-    color: Colors.textPrimary,
-    textAlign: 'center',
+    marginLeft: 8,
   },
   scrollContent: {
     paddingHorizontal: Sizes.lg,

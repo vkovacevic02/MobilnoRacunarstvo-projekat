@@ -22,6 +22,7 @@ Route::get('/aranzmani', [\App\Http\Controllers\AranzmaniController::class,'vrat
 
 Route::get('/aranzmani/{putovanjeId}', [\App\Http\Controllers\AranzmaniController::class,'vratiAranzmanePoPutovanju']);
 Route::get('/plan-aranzmana/{aranzmanId}', [\App\Http\Controllers\PlanAranzmanaController::class,'vratiPlanoveZaAranzman']);
+Route::get('/export/plans.pdf', [\App\Http\Controllers\ExportController::class, 'plansPdf']);
 
 Route::get('/pretrazi-gradove', [\App\Http\Controllers\PutovanjeController::class,'pretraziPoDrzavi']);
 Route::get('/pretrazi-oblasti', [\App\Http\Controllers\PutovanjeController::class,'pretraziOblasiPoDrzavi']);
