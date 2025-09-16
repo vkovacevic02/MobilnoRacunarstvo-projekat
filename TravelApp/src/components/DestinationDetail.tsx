@@ -9,6 +9,7 @@ import {
   Dimensions,
   StatusBar,
   SafeAreaView,
+  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
@@ -29,6 +30,8 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
   const [error, setError] = useState<string | null>(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [minPrice, setMinPrice] = useState<number | null>(null);
+  const [filterMin, setFilterMin] = useState<string>('');
+  const [filterMax, setFilterMax] = useState<string>('');
 
   const loadAranzmani = async () => {
     try {
@@ -60,6 +63,21 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
   const handleReserve = (aranzman: Aranzman) => {
     // TODO: Implementirati rezervaciju
     alert(`Rezervacija za ${aranzman.nazivAranzmana}`);
+  };
+
+  const parsedMin = filterMin.trim() === '' ? null : Number(filterMin.replace(',', '.'));
+  const parsedMax = filterMax.trim() === '' ? null : Number(filterMax.replace(',', '.'));
+
+  const visibleAranzmani = aranzmani.filter((a) => {
+    const cena = Number(a.cena);
+    if (!isNaN(parsedMin as number) && parsedMin !== null && cena < (parsedMin as number)) return false;
+    if (!isNaN(parsedMax as number) && parsedMax !== null && cena > (parsedMax as number)) return false;
+    return true;
+  });
+
+  const clearFilters = () => {
+    setFilterMin('');
+    setFilterMax('');
   };
 
   return (
@@ -130,6 +148,39 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
             </TouchableOpacity>
           </View>
 
+          {/* Filter po ceni */}
+          <View style={styles.filterContainer}>
+            <View style={styles.filterInputsRow}>
+              <View style={styles.filterInputWrapper}>
+                <Text style={styles.filterLabel}>Min cena</Text>
+                <TextInput
+                  style={styles.filterInput}
+                  placeholder="npr. 300"
+                  placeholderTextColor={Colors.textSecondary}
+                  keyboardType="numeric"
+                  value={filterMin}
+                  onChangeText={setFilterMin}
+                />
+              </View>
+              <View style={styles.filterInputWrapper}>
+                <Text style={styles.filterLabel}>Max cena</Text>
+                <TextInput
+                  style={styles.filterInput}
+                  placeholder="npr. 800"
+                  placeholderTextColor={Colors.textSecondary}
+                  keyboardType="numeric"
+                  value={filterMax}
+                  onChangeText={setFilterMax}
+                />
+              </View>
+            </View>
+            <View style={styles.filterActionsRow}>
+              <TouchableOpacity onPress={clearFilters}>
+                <Text style={styles.clearFilterText}>Očisti filter</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           {/* Aranžmani */}
           {loading && (
             <View style={styles.loadingContainer}>
@@ -141,10 +192,10 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
             <Text style={styles.errorText}>{error}</Text>
           )}
 
-          {!loading && !error && aranzmani.length > 0 && (
+          {!loading && !error && visibleAranzmani.length > 0 && (
             <View style={styles.arrangementsContainer}>
               <Text style={styles.arrangementsTitle}>Dostupni aranžmani</Text>
-              {aranzmani.map((aranzman) => (
+              {visibleAranzmani.map((aranzman) => (
                 <View key={aranzman.id} style={styles.arrangementCard}>
                   <View style={styles.arrangementHeader}>
                     <Text style={styles.arrangementName}>{aranzman.nazivAranzmana}</Text>
@@ -172,7 +223,7 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
             </View>
           )}
 
-          {!loading && !error && aranzmani.length === 0 && (
+          {!loading && !error && visibleAranzmani.length === 0 && (
             <View style={styles.noArrangementsContainer}>
               <Text style={styles.noArrangementsText}>Nema dostupnih aranžmana za ovu destinaciju.</Text>
             </View>
@@ -301,6 +352,47 @@ const styles = StyleSheet.create({
   },
   arrangementsContainer: {
     marginTop: Sizes.lg,
+  },
+  filterContainer: {
+    backgroundColor: Colors.surface,
+    borderRadius: Sizes.radius.md,
+    padding: Sizes.md,
+    marginTop: Sizes.md,
+  },
+  filterInputsRow: {
+    flexDirection: 'row',
+    gap: Sizes.md,
+  },
+  filterInputWrapper: {
+    flex: 1,
+  },
+  filterLabel: {
+    fontSize: Sizes.fontSize.sm,
+    color: Colors.textSecondary,
+    marginBottom: Sizes.xs,
+  },
+  filterInput: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: Sizes.radius.sm,
+    paddingHorizontal: Sizes.sm,
+    paddingVertical: 10,
+    color: Colors.text,
+  },
+  filterActionsRow: {
+    marginTop: Sizes.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  filterHint: {
+    fontSize: Sizes.fontSize.xs,
+    color: Colors.textSecondary,
+  },
+  clearFilterText: {
+    color: Colors.primary,
+    fontWeight: '600',
   },
   arrangementsTitle: {
     fontSize: Sizes.fontSize.lg,
