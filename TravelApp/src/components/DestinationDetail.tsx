@@ -32,6 +32,9 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [filterMin, setFilterMin] = useState<string>('');
   const [filterMax, setFilterMax] = useState<string>('');
+  const [nightsOptions, setNightsOptions] = useState<number[]>([]);
+  const [selectedNights, setSelectedNights] = useState<number | null>(null);
+  const [isNightsOpen, setIsNightsOpen] = useState(false);
 
   const loadAranzmani = async () => {
     try {
@@ -44,8 +47,21 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
       if (data && data.length > 0) {
         const lowest = Math.min(...data.map((a: Aranzman) => a.cena));
         setMinPrice(lowest);
+        const uniq = Array.from(new Set(
+          data.map((a: any) => {
+            const start = new Date(a.datumOd);
+            const end = new Date(a.datumDo);
+            const diffMs = end.getTime() - start.getTime();
+            const nights = Math.max(0, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+            return nights;
+          })
+        ))
+        .filter((n) => !Number.isNaN(n))
+        .sort((a, b) => a - b);
+        setNightsOptions(uniq);
       } else {
         setMinPrice(destination.cena || null);
+        setNightsOptions([]);
       }
     } catch (e: any) {
       console.error('Greška pri učitavanju aranžmana:', e);
@@ -72,12 +88,20 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
     const cena = Number(a.cena);
     if (!isNaN(parsedMin as number) && parsedMin !== null && cena < (parsedMin as number)) return false;
     if (!isNaN(parsedMax as number) && parsedMax !== null && cena > (parsedMax as number)) return false;
+    if (selectedNights !== null) {
+      const start = new Date(a.datumOd);
+      const end = new Date(a.datumDo);
+      const diffMs = end.getTime() - start.getTime();
+      const nights = Math.max(0, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+      if (nights !== selectedNights) return false;
+    }
     return true;
   });
 
   const clearFilters = () => {
     setFilterMin('');
     setFilterMax('');
+    setSelectedNights(null);
   };
 
   return (
@@ -172,6 +196,35 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
                   value={filterMax}
                   onChangeText={setFilterMax}
                 />
+              </View>
+            </View>
+            <View style={[styles.filterInputsRow, { marginTop: Sizes.sm }]}>
+              <View style={styles.filterInputWrapper}>
+                <Text style={styles.filterLabel}>Broj noćenja</Text>
+                <View>
+                  <TouchableOpacity
+                    style={styles.dropdownSelected}
+                    onPress={() => setIsNightsOpen(!isNightsOpen)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.dropdownSelectedText}>
+                      {selectedNights === null ? 'Svi' : `${selectedNights} noćenja`}
+                    </Text>
+                    <Ionicons name={isNightsOpen ? 'chevron-up' : 'chevron-down'} size={18} color={Colors.textSecondary} />
+                  </TouchableOpacity>
+                  {isNightsOpen && (
+                    <View style={styles.dropdownMenu}>
+                      <TouchableOpacity style={styles.dropdownItem} onPress={() => { setSelectedNights(null); setIsNightsOpen(false); }}>
+                        <Text style={styles.dropdownItemText}>Svi</Text>
+                      </TouchableOpacity>
+                      {nightsOptions.map((n) => (
+                        <TouchableOpacity key={n} style={styles.dropdownItem} onPress={() => { setSelectedNights(n); setIsNightsOpen(false); }}>
+                          <Text style={styles.dropdownItemText}>{n} noćenja</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
               </View>
             </View>
             <View style={styles.filterActionsRow}>
@@ -399,6 +452,39 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: Colors.text,
     marginBottom: Sizes.md,
+  },
+  dropdownSelected: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: Sizes.radius.sm,
+    paddingHorizontal: Sizes.sm,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dropdownSelectedText: {
+    color: Colors.text,
+    fontSize: Sizes.fontSize.md,
+  },
+  dropdownMenu: {
+    marginTop: 4,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: Sizes.radius.sm,
+    overflow: 'hidden',
+  },
+  dropdownItem: {
+    paddingHorizontal: Sizes.sm,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  dropdownItemText: {
+    color: Colors.text,
+    fontSize: Sizes.fontSize.md,
   },
   arrangementCard: {
     backgroundColor: Colors.surface,
