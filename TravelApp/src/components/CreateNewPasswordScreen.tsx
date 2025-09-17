@@ -53,7 +53,7 @@ export default function CreateNewPasswordScreen({ email, code, onBack, onPasswor
     setLoading(true);
     try {
       await api.resetPassword(email, password, code);
-      // Uspešno resetovanje - pozovi callback bez Alert-a
+      // Uspesno resetovanje - pozovi callback bez Alert-a
       onPasswordReset();
     } catch (error: any) {
       Alert.alert('Greška', error.response?.data?.message || 'Došlo je do greške. Molimo pokušajte ponovo.');

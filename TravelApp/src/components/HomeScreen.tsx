@@ -101,7 +101,7 @@ export default function HomeScreen({ onLogout, onDestinationSelect }: HomeScreen
 
       setDestinations(destinationsToUse);
       
-      // Učitaj cene aranžmana za sve destinacije
+      // Ucitaj cene aranzmana za sve destinacije
       await loadDestinationPrices(destinationsToUse);
     } catch (error) {
       console.error('Error loading destinations:', error);
@@ -176,14 +176,14 @@ export default function HomeScreen({ onLogout, onDestinationSelect }: HomeScreen
 
   const loadUserInfo = async () => {
     try {
-      // Prvo pokušaj da učitaš iz AsyncStorage-a
+      // Prvo pokusaj da ucitas iz AsyncStorage-a
       const userData = await AsyncStorage.getItem('user_data');
       if (userData) {
         const user = JSON.parse(userData);
         setUserInfo(user);
       }
       
-      // Zatim pokušaj da učitaš najnovije informacije sa servera
+      // pokusaj da ucitas najnovije informacije sa servera
       try {
         const response = await api.getUserInfo();
         if (response.success) {
@@ -192,7 +192,7 @@ export default function HomeScreen({ onLogout, onDestinationSelect }: HomeScreen
           await AsyncStorage.setItem('user_data', JSON.stringify(response.data));
         }
       } catch (apiError) {
-        // Ako API poziv ne uspe, samo koristi lokalne podatke
+        // Ako API poziv ne uspe, koristi lokalne podatke
         console.log('Could not fetch user info from server, using cached data');
       }
     } catch (error) {
@@ -207,7 +207,7 @@ export default function HomeScreen({ onLogout, onDestinationSelect }: HomeScreen
       try {
         const aranzmani = await api.getAranzmaniByDestination(destination.id);
         if (aranzmani && aranzmani.length > 0) {
-          // Pronađi najnižu cenu aranžmana
+          // Pronadji najnizu cenu aranzmana
           const minPrice = Math.min(...aranzmani.map((a: Aranzman) => a.cena));
           prices[destination.id] = minPrice;
         } else {
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: Sizes.fontSize.lg,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: Colors.primary,
   },
   welcomeText: {
     fontSize: Sizes.fontSize.sm,
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Sizes.fontSize.lg,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: Colors.primary,
   },
   destinationsCount: {
     fontSize: Sizes.fontSize.sm,
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
   destinationName: {
     fontSize: Sizes.fontSize.md,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: Colors.primary,
     marginBottom: 4,
   },
   locationRow: {
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: Sizes.fontSize.sm,
     fontWeight: '500',
-    color: Colors.textPrimary,
+    color: Colors.primary,
   },
   price: {
     fontSize: Sizes.fontSize.md,

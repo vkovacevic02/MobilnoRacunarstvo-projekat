@@ -79,14 +79,14 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
         password: formData.password
       });
 
-      // Registracija uspešna - prikaži potvrdu
+      // Registracija uspesna - prikazi potvrdu
       setSuccessMessage('Registracija uspešna! Kliknite dugme ispod da se vratite na login.');
       setLoading(false);
     } catch (error: any) {
       let errorMessage = 'Došlo je do greške pri registraciji. Pokušajte ponovo.';
       let isEmailError = false;
       
-      // Proveri različite formate grešaka
+      // Proveri razlicite formate gresaka
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } 
@@ -117,7 +117,7 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
         errorMessage = 'Nema konekcije sa serverom. Proverite internet konekciju.';
       }
       
-      // Ako je greška vezana za email, postavi error za email polje
+      // Ako je greska vezana za email, postavi error za email polje
       if (isEmailError) {
         setErrors(prev => ({ ...prev, email: errorMessage }));
       }
@@ -270,7 +270,7 @@ export default function SignInScreen({ onBack, onSignInSuccess }: SignInScreenPr
           </TouchableOpacity>
         )}
 
-        {/* Već imate nalog */}
+        {/* Vec imate nalog */}
         <View style={authStyles.signInContainer}>
           <Text style={authStyles.signInText}>Već imate nalog? </Text>
           <TouchableOpacity onPress={onBack}>

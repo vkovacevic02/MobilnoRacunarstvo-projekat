@@ -97,7 +97,7 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
     }
 
     try {
-      // Server-side provera i upis rezervacije
+      // Server provera i upis rezervacije
       const result = await api.reserveArrangement(aranzman.id, requested);
       console.log('Reservation success', result);
       setTimeout(() => Alert.alert('Uspeh', `Rezervisano ${result.rezervisano} osoba. Preostalo: ${result.preostalo}.`), 0);

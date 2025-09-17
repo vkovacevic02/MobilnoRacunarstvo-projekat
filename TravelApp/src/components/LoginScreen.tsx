@@ -47,7 +47,7 @@ export default function LoginScreen({ onLoginSuccess, onBack, onForgotPassword, 
     try {
       const response = await api.login({ email, password });
       
-      // Uspješna prijava
+      // Uspesna prijava
       onLoginSuccess();
     } catch (error: any) {
       setError('Hm, ne možemo da pronađemo nalog za ovaj email');

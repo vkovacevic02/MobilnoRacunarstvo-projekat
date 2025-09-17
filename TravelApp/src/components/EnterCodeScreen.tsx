@@ -35,14 +35,13 @@ export default function EnterCodeScreen({ email, sentCode, onBack, onCodeVerifie
   const inputRefs = useRef<TextInput[]>([]);
 
   const handleCodeChange = (value: string, index: number) => {
-    if (value.length > 1) return; // Prevent multiple characters
+    if (value.length > 1) return; 
     
     const newCode = [...code];
     newCode[index] = value;
     setCode(newCode);
     setError('');
 
-    // Auto-focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }

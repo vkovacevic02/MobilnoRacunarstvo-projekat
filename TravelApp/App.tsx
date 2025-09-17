@@ -89,7 +89,7 @@ export default function App() {
     try {
       await api.logout();
     } catch (error) {
-      // Ignoriši greške pri logout-u
+      // Ignorisi greške pri logout-u
     } finally {
       setShowSuccess(false);
       setShowLogin(true);
@@ -114,7 +114,7 @@ export default function App() {
     console.log('handleLogout called in App.tsx - going to onboarding');
     
     try {
-      // Obriši sve podatke iz storage-a
+      // Obrisi sve podatke iz storage-a
       await AsyncStorage.removeItem('auth_token');
       await AsyncStorage.removeItem('user_data');
       console.log('Cleared storage data');
@@ -122,7 +122,7 @@ export default function App() {
       console.log('Error clearing storage:', error);
     }
     
-    // Resetuj sve state-ove na početno stanje
+    // Resetuj sve state-ove na pocetno stanje
     setShowOnboarding(true);
     setShowLogin(false);
     setShowResetPassword(false);

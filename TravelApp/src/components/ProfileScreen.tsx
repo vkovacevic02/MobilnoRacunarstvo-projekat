@@ -31,19 +31,19 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
 
   const loadUserInfo = async () => {
     try {
-      // Prvo pokušaj da učitaš iz AsyncStorage-a
+      // Prvo pokusaj da učitaš iz AsyncStorage-a
       const userData = await AsyncStorage.getItem('user_data');
       if (userData) {
         const user = JSON.parse(userData);
         setUserInfo(user);
       }
       
-      // Zatim pokušaj da učitaš najnovije informacije sa servera
+      // Zatim pokusaj da ucitas najnovije informacije sa servera
       try {
         const response = await api.getUserInfo();
         if (response.success) {
           setUserInfo(response.data);
-          // Ažuriraj AsyncStorage sa najnovijim podacima
+          // Azuriraj AsyncStorage sa najnovijim podacima
           await AsyncStorage.setItem('user_data', JSON.stringify(response.data));
         }
       } catch (apiError) {
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: Sizes.fontSize.xl,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: Colors.primary,
     textAlign: 'center',
   },
   userSection: {
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: Sizes.fontSize.xl,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: Colors.text,
     marginBottom: 4,
   },
   userEmail: {
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   },
   detailValue: {
     fontSize: Sizes.fontSize.md,
-    color: Colors.textPrimary,
+    color: Colors.primary,
     fontWeight: '400',
     marginLeft: Sizes.sm,
     flex: 1,

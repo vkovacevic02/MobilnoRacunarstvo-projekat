@@ -41,7 +41,7 @@ export default function BookedScreen() {
     try {
       setLoading(true);
       
-      // Učitaj korisničke informacije
+      // Ucitaj korisnicke informacije
       const userData = await AsyncStorage.getItem('user_data');
       if (!userData) {
         console.log('No user data found');
@@ -54,13 +54,13 @@ export default function BookedScreen() {
 
       console.log('Loading bookings for user ID:', user.id);
 
-      // Učitaj rezervacije korisnika iz backend-a
+      // Ucitaj rezervacije korisnika iz backend-a
       const userBookings = await api.getUserBookings(user.id);
       console.log('Loaded user bookings:', userBookings);
 
-      // Transformiši backend podatke u format koji očekuje komponenta
+      // Transformisi backend podatke u format koji očekuje komponenta
       const transformedBookings: BookingItem[] = userBookings.map((booking: UserBooking) => {
-        // Odrediti status na osnovu datuma
+        // Odredjivanje statusa na osnovu datuma
         const today = new Date();
         const bookingStartDate = new Date(booking.aranzman.datumOd);
         const bookingEndDate = new Date(booking.aranzman.datumDo);
@@ -88,7 +88,7 @@ export default function BookedScreen() {
     } catch (error) {
       console.error('Error loading user bookings:', error);
       
-      // Fallback to mock data if API fails
+      
       const mockBookings: BookingItem[] = [
         {
           id: 1,

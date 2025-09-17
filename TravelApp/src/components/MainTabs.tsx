@@ -50,7 +50,7 @@ export default function MainTabs({ onLogout }: MainTabsProps) {
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           } else {
-            iconName = 'circle';
+            iconName = 'ellipse-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
