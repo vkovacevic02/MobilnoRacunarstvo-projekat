@@ -48,11 +48,13 @@ class PutnikController extends ResponseController
 
         $cena = $this->kalkulatorCene->izracunajCenu($aranzman->cena, $aranzman->popust);
 
+        $brojPutnika = max(1, (int)($request->input('broj_putnika', $request->input('brojPutnika', 1))));
         $putnik = \App\Models\Putnici::create([
             'user_id' => $request->user_id,
             'aranzman_id' => $request->aranzman_id,
             'datum' => now(),
-            'ukupnaCenaAranzmana' => $cena,
+            'ukupnaCenaAranzmana' => $cena * $brojPutnika,
+            'broj_putnika' => $brojPutnika,
         ]);
 
         return $this->usepsno(new PunikResurs($putnik), 'Putnik je uspešno kreiran.');
@@ -100,10 +102,6 @@ class PutnikController extends ResponseController
 
         $putnici = \App\Models\Putnici::where('aranzman_id', $aranzmanId)->get();
 
-        if ($putnici->isEmpty()) {
-            return $this->neuspesno('Nema putnika za ovaj aranžman.');
-        }
-
         return $this->usepsno(PunikResurs::collection($putnici), 'Putnici za aranžman su uspešno učitani.');
     }
 
@@ -126,5 +124,47 @@ class PutnikController extends ResponseController
         }
 
         return $this->usepsno(PunikResurs::collection($putnik), 'Putnici za korisnika su uspešno učitani.');
+    }
+
+    public function rezervisi(Request $request, int $aranzmanId): \Illuminate\Http\JsonResponse
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'count' => 'required|integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->neuspesno('Validacija nije uspela.', $validator->errors());
+        }
+
+        $aranzman = \App\Models\Aranzman::find($aranzmanId);
+        if (!$aranzman) {
+            return $this->neuspesno('Aranžman nije pronađen.');
+        }
+
+        $alreadyBooked = (int) \App\Models\Putnici::where('aranzman_id', $aranzmanId)->sum('broj_putnika');
+        $available = max(0, (int)$aranzman->kapacitet - $alreadyBooked);
+
+        $count = (int)$request->input('count');
+        if ($count > $available) {
+            return $this->neuspesno('Nema dovoljno mesta.', ['preostalo' => $available]);
+        }
+
+        $cena = app(\App\Http\Services\KalkulatorCene::class)->izracunajCenu($aranzman->cena, $aranzman->popust);
+
+        $user = $request->user();
+        if (!$user) {
+            return $this->neuspesno('Morate biti prijavljeni.');
+        }
+
+        $now = now();
+        \App\Models\Putnici::create([
+            'user_id' => $user->id,
+            'aranzman_id' => $aranzmanId,
+            'datum' => $now,
+            'ukupnaCenaAranzmana' => $cena * $count,
+            'broj_putnika' => $count,
+        ]);
+
+        return $this->usepsno(['rezervisano' => $count, 'preostalo' => $available - $count], 'Rezervacija uspešna.');
     }
 }

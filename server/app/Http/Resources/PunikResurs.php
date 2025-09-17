@@ -24,7 +24,8 @@ class PunikResurs extends JsonResource
             'user' => new UserResurs($user),
             'aranzman' => new AranzmanResurs($aranzman),
             'datum' => $this->datum,
-            'ukupnaCenaAranzmana' => $this->ukupnaCenaAranzmana
+            'ukupnaCenaAranzmana' => $this->ukupnaCenaAranzmana,
+            'broj_putnika' => $this->broj_putnika ?? $this->brojPutnika ?? 1,
         ];
     }
 }

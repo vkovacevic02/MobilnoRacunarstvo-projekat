@@ -80,7 +80,7 @@ export default function BookedScreen() {
           status,
           image: booking.aranzman.putovanje?.slika || 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=400&h=300&fit=crop',
           price: booking.ukupnaCenaAranzmana,
-          guests: 1, // Defaultno 1 gost
+          guests: booking.broj_putnika ?? 1,
         };
       });
 

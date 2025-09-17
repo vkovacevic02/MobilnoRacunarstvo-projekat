@@ -10,6 +10,7 @@ import {
   StatusBar,
   SafeAreaView,
   TextInput,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
@@ -35,6 +36,7 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
   const [nightsOptions, setNightsOptions] = useState<number[]>([]);
   const [selectedNights, setSelectedNights] = useState<number | null>(null);
   const [isNightsOpen, setIsNightsOpen] = useState(false);
+  const [reservationStatus, setReservationStatus] = useState<{[key:number]: { type: 'success' | 'error'; text: string }}>({});
 
   const loadAranzmani = async () => {
     try {
@@ -76,9 +78,38 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
     loadAranzmani();
   }, [destination.id]);
 
-  const handleReserve = (aranzman: Aranzman) => {
-    // TODO: Implementirati rezervaciju
-    alert(`Rezervacija za ${aranzman.nazivAranzmana}`);
+  const [passengerCounts, setPassengerCounts] = useState<{[key:number]: string}>({});
+
+  const handlePassengerChange = (aranzmanId: number, value: string) => {
+    // Samo brojevi, ukloni sve ostalo
+    const normalized = value.replace(/[^0-9]/g, '');
+    setPassengerCounts((prev) => ({ ...prev, [aranzmanId]: normalized }));
+  };
+
+  const handleReserve = async (aranzman: Aranzman) => {
+    console.log('Book Now pressed for', aranzman.id, aranzman.nazivAranzmana);
+    const input = passengerCounts[aranzman.id] || '';
+    const requested = Number(input);
+    if (!requested || requested <= 0) {
+      setTimeout(() => Alert.alert('Greška', 'Unesite validan broj putnika.'), 0);
+      setReservationStatus((prev) => ({ ...prev, [aranzman.id]: { type: 'error', text: 'Unesite validan broj putnika.' } }));
+      return;
+    }
+
+    try {
+      // Server-side provera i upis rezervacije
+      const result = await api.reserveArrangement(aranzman.id, requested);
+      console.log('Reservation success', result);
+      setTimeout(() => Alert.alert('Uspeh', `Rezervisano ${result.rezervisano} osoba. Preostalo: ${result.preostalo}.`), 0);
+      setReservationStatus((prev) => ({ ...prev, [aranzman.id]: { type: 'success', text: `Rezervisano ${result.rezervisano} osoba. Preostalo: ${result.preostalo}.` } }));
+    } catch (err: any) {
+      console.warn('Reservation error', err);
+      const message = err?.response?.data?.message || err?.message || 'Došlo je do greške.';
+      const preostalo = err?.response?.data?.errors?.preostalo;
+      const text = preostalo !== undefined ? `Nema dovoljno mesta. Preostalo: ${preostalo}.` : message;
+      setTimeout(() => Alert.alert('Greška', text), 0);
+      setReservationStatus((prev) => ({ ...prev, [aranzman.id]: { type: 'error', text } }));
+    }
   };
 
   const parsedMin = filterMin.trim() === '' ? null : Number(filterMin.replace(',', '.'));
@@ -265,6 +296,24 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
                       Popust: {aranzman.popust}%
                     </Text>
                   )}
+                  <View style={styles.passengersRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.filterLabel}>Broj putnika</Text>
+                      <TextInput
+                        style={styles.passengersInput}
+                        placeholder="npr. 2"
+                        placeholderTextColor={Colors.textSecondary}
+                        keyboardType="numeric"
+                        value={passengerCounts[aranzman.id] || ''}
+                        onChangeText={(v) => handlePassengerChange(aranzman.id, v)}
+                      />
+                    </View>
+                  </View>
+                  {reservationStatus[aranzman.id] && (
+                    <Text style={[styles.reservationStatusText, reservationStatus[aranzman.id].type === 'success' ? { color: 'green' } : { color: Colors.error }]}>
+                      {reservationStatus[aranzman.id].text}
+                    </Text>
+                  )}
                   <TouchableOpacity 
                     style={styles.reserveButton}
                     onPress={() => handleReserve(aranzman)}
@@ -447,6 +496,11 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '600',
   },
+  reservationStatusText: {
+    marginTop: 6,
+    marginBottom: Sizes.sm,
+    fontSize: Sizes.fontSize.sm,
+  },
   arrangementsTitle: {
     fontSize: Sizes.fontSize.lg,
     fontWeight: 'bold',
@@ -524,6 +578,21 @@ const styles = StyleSheet.create({
     color: Colors.accent,
     fontWeight: 'bold',
     marginBottom: Sizes.sm,
+  },
+  passengersRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Sizes.md,
+    marginBottom: Sizes.sm,
+  },
+  passengersInput: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: Sizes.radius.sm,
+    paddingHorizontal: Sizes.sm,
+    paddingVertical: 10,
+    color: Colors.text,
   },
   reserveButton: {
     backgroundColor: Colors.primary,

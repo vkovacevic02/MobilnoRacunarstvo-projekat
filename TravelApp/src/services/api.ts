@@ -168,6 +168,21 @@ class ApiService {
   async getUserPayments(userId: number): Promise<any[]> {
     return this.get<any[]>(`/users/${userId}/uplate`);
   }
+
+  async getPassengersByArrangement(aranzmanId: number): Promise<any[]> {
+    return this.get<any[]>(`/aranzmani/${aranzmanId}/putnici`);
+  }
+
+  async reserveArrangement(aranzmanId: number, count: number): Promise<{ rezervisano: number; preostalo: number }> {
+    const response = await this.api.post<ApiResponse<{ rezervisano: number; preostalo: number }>>(
+      `/aranzmani/${aranzmanId}/rezervisi`,
+      { count }
+    );
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Rezervacija nije uspela');
+    }
+    return response.data.data;
+  }
 }
 
 export default new ApiService();

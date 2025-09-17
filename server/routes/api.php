@@ -42,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/putovanja/{id}', [\App\Http\Controllers\PutovanjeController::class,'obrisiPutovanje']);
 
     Route::post('/putnici', [\App\Http\Controllers\PutnikController::class, 'store']);
+    Route::post('/aranzmani/{aranzmanId}/rezervisi', [\App\Http\Controllers\PutnikController::class, 'rezervisi']);
 
     Route::resource('putnici', \App\Http\Controllers\PutnikController::class)->only([
         'update', 'destroy'

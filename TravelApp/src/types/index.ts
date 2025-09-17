@@ -110,6 +110,7 @@ export interface UserBooking {
   aranzman: Aranzman;
   datum: string;
   ukupnaCenaAranzmana: number;
+  broj_putnika?: number;
 }
 
 export interface UserPayment {

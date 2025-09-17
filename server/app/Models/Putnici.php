@@ -8,7 +8,7 @@ class Putnici extends Model
 {
     protected $table = 'putnici';
 
-    protected $fillable = ['user_id', 'aranzman_id', 'datum', 'ukupnaCenaAranzmana'];
+    protected $fillable = ['user_id', 'aranzman_id', 'datum', 'ukupnaCenaAranzmana', 'broj_putnika'];
 
     public function user()
     {
