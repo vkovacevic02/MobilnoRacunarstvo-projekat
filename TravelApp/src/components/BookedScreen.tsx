@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: Sizes.fontSize.xl,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: Colors.text,
     textAlign: 'center',
   },
   tabContainer: {
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   destinationName: {
     fontSize: Sizes.fontSize.md,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: Colors.text,
     flex: 1,
   },
   statusBadge: {
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: Sizes.fontSize.lg,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: Colors.text,
     marginTop: Sizes.md,
     marginBottom: Sizes.sm,
     textAlign: 'center',
