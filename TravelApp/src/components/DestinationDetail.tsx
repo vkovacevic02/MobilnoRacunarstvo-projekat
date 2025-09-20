@@ -18,7 +18,7 @@ import { Sizes } from '../constants/sizes';
 import api from '../services/api';
 import { Putovanje, Aranzman } from '../types';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 interface DestinationDetailProps {
   destination: Putovanje;
@@ -178,27 +178,27 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
           <View style={styles.amenitiesContainer}>
             <View style={styles.amenityTag}>
               <Ionicons name="bed-outline" size={20} color={Colors.primary} style={{ marginRight: 4 }} />
-              <Text style={styles.amenityText}>4 Rooms</Text>
+              <Text style={styles.amenityText}>4 Sobe</Text>
             </View>
             <View style={styles.amenityTag}>
               <Ionicons name="water-outline" size={20} color={Colors.primary} style={{ marginRight: 4 }} />
-              <Text style={styles.amenityText}>Pool</Text>
+              <Text style={styles.amenityText}>Bazen</Text>
             </View>
             <View style={styles.amenityTag}>
               <Ionicons name="restaurant-outline" size={20} color={Colors.primary} style={{ marginRight: 4 }} />
-              <Text style={styles.amenityText}>Restaurant</Text>
+              <Text style={styles.amenityText}>Restoran</Text>
             </View>
           </View>
 
           {/* Opis */}
           <View style={styles.descriptionContainer}>
-            <Text style={styles.descriptionTitle}>Description</Text>
+            <Text style={styles.descriptionTitle}>Opis</Text>
             <Text style={styles.descriptionText} numberOfLines={showFullDescription ? undefined : 3}>
               {destination.opis}
             </Text>
             <TouchableOpacity onPress={() => setShowFullDescription(!showFullDescription)}>
               <Text style={styles.readMore}>
-                {showFullDescription ? 'Read less..' : 'Read more..'}
+                {showFullDescription ? 'Prikaži manje..' : 'Prikaži više..'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -318,7 +318,7 @@ export default function DestinationDetail({ destination, onBack }: DestinationDe
                     style={styles.reserveButton}
                     onPress={() => handleReserve(aranzman)}
                   >
-                    <Text style={styles.reserveButtonText}>Book Now</Text>
+                    <Text style={styles.reserveButtonText}>Rezerviši</Text>
                   </TouchableOpacity>
                 </View>
               ))}

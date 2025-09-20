@@ -155,14 +155,14 @@ export default function LoginScreen({ onLoginSuccess, onBack, onForgotPassword, 
             {loading ? (
               <ActivityIndicator color="white" size="small" />
             ) : (
-              <Text style={authStyles.loginButtonText}>LOGIN</Text>
+              <Text style={authStyles.loginButtonText}>PRIJAVI SE</Text>
             )}
           </TouchableOpacity>
 
           {/* OR Divider */}
           <View style={authStyles.orContainer}>
             <View style={authStyles.orLine} />
-            <Text style={authStyles.orText}>OR</Text>
+            <Text style={authStyles.orText}>ILI</Text>
             <View style={authStyles.orLine} />
           </View>
 
@@ -171,7 +171,7 @@ export default function LoginScreen({ onLoginSuccess, onBack, onForgotPassword, 
             style={authStyles.signInButton} 
             onPress={onSignIn}
           >
-            <Text style={authStyles.signInButtonText}>SIGN IN</Text>
+            <Text style={authStyles.signInButtonText}>REGISTRUJ SE</Text>
           </TouchableOpacity>
 
         </View>

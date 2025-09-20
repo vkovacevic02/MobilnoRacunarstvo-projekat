@@ -41,15 +41,15 @@ export default function OnboardingScreen({ onGetStarted }: OnboardingScreenProps
         <View style={styles.textContainer}>
           <Text style={styles.brand}>Vivir La Vida</Text>
           <Text style={styles.mainTitle}>
-            Enjoy the Beauty{'\n'}Of the World
+          Otkrij nove horizonte!
           </Text>
           <Text style={styles.subtitle}>
-            Rest yourself by taking a vacation to the place you want
+          Destinacija iz snova čeka samo na tebe.
           </Text>
         </View>
         
         <TouchableOpacity style={styles.getStartedButton} onPress={onGetStarted}>
-          <Text style={styles.getStartedText}>Get Started</Text>
+          <Text style={styles.getStartedText}>ZAPOČNI</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
