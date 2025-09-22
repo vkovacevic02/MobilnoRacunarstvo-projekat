@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/grupisano', [\App\Http\Controllers\PutnikController::class,'grupisanoBrojPutnikaPoAranzmanu']);
 
     Route::get('/aranzmani/{aranzmanId}/putnici', [\App\Http\Controllers\PutnikController::class,'putniciPoAranzmanu']);
+    Route::get('/aranzmani/{aranzmanId}/kapacitet', [\App\Http\Controllers\PutnikController::class,'kapacitet']);
     // Uplate
     Route::get('/uplate', [\App\Http\Controllers\UplateController::class, 'uplate']);
     Route::get('/paginacija', [\App\Http\Controllers\UplateController::class, 'paginacija']);

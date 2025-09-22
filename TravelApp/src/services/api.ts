@@ -171,6 +171,50 @@ class ApiService {
     }
     return response.data.data;
   }
+
+  // Cancel reservation method
+  async cancelReservation(putnikId: number): Promise<void> {
+    try {
+      const response = await this.api.delete<ApiResponse<any>>(`/putnici/${putnikId}`);
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Otkazivanje rezervacije nije uspelo');
+      }
+    } catch (error: any) {
+      console.error('Cancel reservation API error:', error);
+      if (error.response?.status === 401) {
+        throw new Error('Morate biti prijavljeni da biste otkazali rezervaciju.');
+      } else if (error.response?.status === 404) {
+        throw new Error('Rezervacija nije pronađena.');
+      } else if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error('Došlo je do greške prilikom otkazivanja rezervacije.');
+      }
+    }
+  }
+
+  async updateReservation(putnikId: number, brojPutnika: number): Promise<any> {
+    try {
+      const response = await this.api.put<ApiResponse<any>>(`/putnici/${putnikId}`, {
+        broj_putnika: brojPutnika
+      });
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Ažuriranje rezervacije nije uspelo');
+      }
+      return response.data.data;
+    } catch (error: any) {
+      console.error('Update reservation API error:', error);
+      if (error.response?.status === 401) {
+        throw new Error('Morate biti prijavljeni da biste ažurirali rezervaciju.');
+      } else if (error.response?.status === 404) {
+        throw new Error('Rezervacija nije pronađena.');
+      } else if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error('Došlo je do greške prilikom ažuriranja rezervacije.');
+      }
+    }
+  }
 }
 
 export default new ApiService();

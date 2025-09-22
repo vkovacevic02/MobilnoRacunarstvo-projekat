@@ -8,6 +8,8 @@ import {
   Image,
   SafeAreaView,
   ActivityIndicator,
+  Alert,
+  Button,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -30,12 +32,70 @@ interface BookingItem {
 export default function BookedScreen() {
   const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cancelingId, setCancelingId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'completed'>('upcoming');
   const [userInfo, setUserInfo] = useState<User | null>(null);
+  const [testMessage, setTestMessage] = useState<string>('Klikni dugme da testiraš');
+  const [confirmingId, setConfirmingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   useEffect(() => {
     loadUserBookings();
   }, []);
+
+  const updatePassengerCount = async (bookingId: number, newCount: number) => {
+    try {
+      setUpdatingId(bookingId);
+      setTestMessage(`🔄 Ažuriram broj putnika...`);
+
+      // Ako je mock podatak (ID 1 ili 2), samo simuliraj
+      if (bookingId === 1 || bookingId === 2) {
+        console.log('Mock data - simulating passenger count update');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Ažuriraj lokalno stanje za mock podatke
+        setBookings(prevBookings => 
+          prevBookings.map(booking => 
+            booking.id === bookingId 
+              ? { ...booking, guests: newCount, price: booking.price / booking.guests * newCount }
+              : booking
+          )
+        );
+        setTestMessage(`✅ Broj putnika je ažuriran!`);
+      } else {
+        // Stvarni API poziv za backend podatke
+        console.log('Calling real API to update passenger count');
+        const response = await api.updateReservation(bookingId, newCount);
+        
+        // Ažuriraj lokalno stanje na osnovu API odgovora
+        setBookings(prevBookings => 
+          prevBookings.map(booking => 
+            booking.id === bookingId 
+              ? { 
+                  ...booking, 
+                  guests: newCount, 
+                  price: response.nova_cena || booking.price 
+                }
+              : booking
+          )
+        );
+        setTestMessage(`✅ Rezervacija je ažurirana! Nova cena: €${response.nova_cena}`);
+      }
+    } catch (error: any) {
+      console.error('Error updating passenger count:', error);
+      setTestMessage(`❌ Greška: ${error.message}`);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const changePassengerCount = (bookingId: number, currentCount: number, increment: number) => {
+    const newCount = currentCount + increment;
+    if (newCount >= 1) {
+      updatePassengerCount(bookingId, newCount);
+    }
+  };
 
   const loadUserBookings = async () => {
     try {
@@ -105,7 +165,7 @@ export default function BookedScreen() {
           destination: 'Maldivi',
           location: 'Maldivi',
           date: '2025-08-20',
-          status: 'pending',
+          status: 'confirmed', // Promenio sa 'pending' na 'confirmed'
           image: 'https://itravel.rs/wp-content/uploads/2019/10/Maldivi-najbolje-ponude.jpg',
           price: 1899,
           guests: 1,
@@ -143,6 +203,67 @@ export default function BookedScreen() {
     }
   };
 
+  const handleCancelReservation = (booking: BookingItem) => {
+    Alert.alert(
+      'Otkaži rezervaciju',
+      `Da li ste sigurni da želite da otkažete rezervaciju za ${booking.destination}?`,
+      [
+        {
+          text: 'Ne',
+          style: 'cancel',
+        },
+        {
+          text: 'Da, otkaži',
+          style: 'destructive',
+          onPress: () => cancelReservation(booking.id),
+        },
+      ]
+    );
+  };
+
+  const cancelReservation = async (bookingId: number) => {
+    console.log('Attempting to cancel reservation with ID:', bookingId);
+    
+    try {
+      setCancelingId(bookingId);
+      console.log('Calling API to cancel reservation...');
+      
+      // Ako koristiš mock podatke (ID 1 ili 2), simuliraj uspešan API poziv
+      if (bookingId === 1 || bookingId === 2) {
+        console.log('Using mock data, simulating successful API call...');
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simuliraj API delay
+      } else {
+        // Stvarni API poziv za backend podatke
+        await api.cancelReservation(bookingId);
+      }
+      
+      console.log('API call successful, removing from list...');
+      
+      // Ukloni rezervaciju iz liste
+      setBookings(prevBookings => {
+        const newBookings = prevBookings.filter(booking => booking.id !== bookingId);
+        console.log('Updated bookings list. Before:', prevBookings.length, 'After:', newBookings.length);
+        return newBookings;
+      });
+      
+      Alert.alert('Uspešno ✅', 'Rezervacija je uspešno otkazana i izbačena iz baze podataka.');
+    } catch (error: any) {
+      console.error('Error canceling reservation:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+      
+      Alert.alert(
+        'Greška ❌', 
+        error.message || 'Došlo je do greške prilikom otkazivanja rezervacije. Molimo pokušajte ponovo.'
+      );
+    } finally {
+      setCancelingId(null);
+    }
+  };
+
   const filteredBookings = bookings.filter(booking => {
     if (activeTab === 'upcoming') {
       return booking.status === 'confirmed' || booking.status === 'pending';
@@ -152,7 +273,7 @@ export default function BookedScreen() {
   });
 
   const renderBookingItem = ({ item }: { item: BookingItem }) => (
-    <TouchableOpacity style={styles.bookingCard}>
+    <View style={styles.bookingCard}>
       <Image source={{ uri: item.image }} style={styles.bookingImage} />
       
       <View style={styles.bookingInfo}>
@@ -180,11 +301,132 @@ export default function BookedScreen() {
           </View>
         </View>
         
-        <View style={styles.priceRow}>
+        <View style={styles.priceAndActionsRow}>
           <Text style={styles.price}>€{item.price}</Text>
         </View>
+        
+        {/* Edit Passenger Count Row */}
+        {editingId === item.id ? (
+          <View style={styles.editContainer}>
+            <View style={styles.editControls}>
+              <View style={styles.passengerControls}>
+                <TouchableOpacity
+                  style={[styles.controlButton, updatingId === item.id && styles.controlButtonDisabled]}
+                  onPress={() => changePassengerCount(item.id, item.guests, -1)}
+                  disabled={updatingId === item.id || item.guests <= 1}
+                >
+                  <Ionicons name="remove" size={20} color="white" />
+                </TouchableOpacity>
+                
+                <View style={styles.passengerCountDisplay}>
+                  <Text style={styles.passengerCountText}>{item.guests}</Text>
+                  <Text style={styles.passengerLabel}>putnik{item.guests !== 1 ? 'a' : ''}</Text>
+                </View>
+                
+                <TouchableOpacity
+                  style={[styles.controlButton, updatingId === item.id && styles.controlButtonDisabled]}
+                  onPress={() => changePassengerCount(item.id, item.guests, 1)}
+                  disabled={updatingId === item.id}
+                >
+                  <Ionicons name="add" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            <View style={styles.editButtonRow}>
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={() => setEditingId(null)}
+              >
+                <Ionicons name="save-outline" size={16} color="white" />
+                <Text style={styles.saveButtonText}>Sačuvaj</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.actionButtonsRow}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => setEditingId(item.id)}
+            >
+              <Ionicons name="create-outline" size={16} color="white" />
+              <Text style={styles.editButtonText}>Izmeni</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Cancel Button Row */}
+        <View style={styles.cancelButtonRow}>
+          {confirmingId === item.id ? (
+            // Confirmation dugmici
+            <View style={styles.confirmationContainer}>
+              <TouchableOpacity 
+                style={[styles.confirmButton, { backgroundColor: Colors.primary }]}
+                onPress={async () => {
+                  console.log('CONFIRMED CANCEL FOR:', item.id);
+                  setTestMessage(`🗑️ Otkazujem rezervaciju ${item.destination}...`);
+                  setCancelingId(item.id);
+                  setConfirmingId(null);
+                  
+                  try {
+                    // Ako je mock podatak (ID 1 ili 2), samo simuliraj
+                    if (item.id === 1 || item.id === 2) {
+                      console.log('Mock data - simulating API call');
+                      await new Promise(resolve => setTimeout(resolve, 1000));
+                    } else {
+                      // Stvarni API poziv za backend podatke
+                      console.log('Calling real API to delete reservation');
+                      await api.cancelReservation(item.id);
+                    }
+                    
+                    // Ukloni iz liste
+                    setBookings(prevBookings => prevBookings.filter(booking => booking.id !== item.id));
+                    setTestMessage(`✅ Rezervacija ${item.destination} je uspešno otkazana!`);
+                    
+                  } catch (error: any) {
+                    console.error('Error canceling reservation:', error);
+                    setTestMessage(`❌ Greška: ${error.message}`);
+                  } finally {
+                    setCancelingId(null);
+                  }
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Da, otkaži</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.confirmButton, { backgroundColor: Colors.textSecondary }]}
+                onPress={() => {
+                  setConfirmingId(null);
+                  setTestMessage('Otkazivanje poništeno');
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Ne</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            // Glavno dugme za otkazivanje
+            <TouchableOpacity 
+              style={[styles.cancelButton, cancelingId === item.id && styles.cancelButtonDisabled]}
+              onPress={() => {
+                setConfirmingId(item.id);
+                setTestMessage(`Sigurno želite da otkažete ${item.destination}?`);
+              }}
+              disabled={cancelingId === item.id}
+            >
+              {cancelingId === item.id ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <Ionicons name="close-circle" size={16} color="white" />
+              )}
+              <Text style={styles.cancelButtonText}>
+                {cancelingId === item.id ? 'Otkazujem...' : 'Otkaži'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   const renderEmptyState = () => (
@@ -203,6 +445,15 @@ export default function BookedScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* STATUS MESSAGE */}
+      {testMessage !== 'Klikni dugme da testiraš' && (
+        <View style={styles.statusMessage}>
+          <Text style={styles.statusMessageText}>
+            {testMessage}
+          </Text>
+        </View>
+      )}
+
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Moje rezervacije</Text>
@@ -243,6 +494,8 @@ export default function BookedScreen() {
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={renderEmptyState}
+          scrollEnabled={true}
+          nestedScrollEnabled={true}
         />
       )}
     </SafeAreaView>
@@ -372,15 +625,199 @@ const styles = StyleSheet.create({
     fontSize: Sizes.fontSize.sm,
     color: Colors.textSecondary,
   },
-  priceRow: {
+  priceAndActionsRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    marginBottom: 8,
   },
   price: {
     fontSize: Sizes.fontSize.lg,
     fontWeight: '700',
     color: Colors.primary,
+  },
+  cancelButtonRow: {
+    alignItems: 'flex-end',
+    marginTop: Sizes.sm,
+  },
+  cancelButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Sizes.md,
+    paddingVertical: Sizes.sm,
+    borderRadius: Sizes.radius.lg,
+    shadowColor: Colors.shadow.dark,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    minWidth: 100,
+  },
+  cancelButtonText: {
+    fontSize: Sizes.fontSize.sm,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  cancelButtonDisabled: {
+    opacity: 0.6,
+  },
+  confirmationContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    gap: Sizes.sm,
+  },
+  confirmButton: {
+    flex: 1,
+    paddingHorizontal: Sizes.md,
+    paddingVertical: Sizes.sm,
+    borderRadius: Sizes.radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.shadow.dark,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  confirmButtonText: {
+    fontSize: Sizes.fontSize.sm,
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  statusMessage: {
+    backgroundColor: Colors.surface,
+    padding: Sizes.md,
+    marginHorizontal: Sizes.lg,
+    marginTop: Sizes.sm,
+    borderRadius: Sizes.radius.md,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primary,
+    shadowColor: Colors.shadow.light,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  statusMessageText: {
+    fontSize: Sizes.fontSize.md,
+    fontWeight: '600',
+    textAlign: 'center',
+    color: Colors.text,
+  },
+  editContainer: {
+    marginTop: Sizes.sm,
+    backgroundColor: Colors.surface,
+    borderRadius: Sizes.radius.lg,
+    padding: Sizes.md,
+    borderWidth: 1,
+    borderColor: Colors.primary + '20',
+  },
+  editControls: {
+    alignItems: 'center',
+    marginBottom: Sizes.sm,
+  },
+  editButtonRow: {
+    alignItems: 'center',
+  },
+  passengerControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  controlButton: {
+    backgroundColor: Colors.primary,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.shadow.dark,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  controlButtonDisabled: {
+    opacity: 0.5,
+  },
+  passengerCountDisplay: {
+    marginHorizontal: Sizes.lg,
+    alignItems: 'center',
+    minWidth: 60,
+  },
+  passengerCountText: {
+    fontSize: Sizes.fontSize.xl,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  passengerLabel: {
+    fontSize: Sizes.fontSize.xs,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: Sizes.lg,
+    paddingVertical: Sizes.md,
+    borderRadius: Sizes.radius.lg,
+    shadowColor: Colors.shadow.dark,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+    minWidth: 120,
+  },
+  saveButtonText: {
+    fontSize: Sizes.fontSize.md,
+    color: '#FFFFFF',
+    fontWeight: '700',
+    marginLeft: 6,
+  },
+  actionButtonsRow: {
+    alignItems: 'flex-end',
+    marginTop: Sizes.sm,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF9800',
+    paddingHorizontal: Sizes.md,
+    paddingVertical: Sizes.sm,
+    borderRadius: Sizes.radius.lg,
+    shadowColor: Colors.shadow.dark,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    minWidth: 100,
+  },
+  editButtonText: {
+    fontSize: Sizes.fontSize.sm,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    marginLeft: 6,
   },
   emptyState: {
     alignItems: 'center',

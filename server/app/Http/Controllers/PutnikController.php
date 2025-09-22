@@ -5,6 +5,7 @@ use App\Http\Services\KalkulatorCene;
 use App\Http\Resources\PunikResurs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PutnikController extends ResponseController
 {
@@ -57,12 +58,14 @@ class PutnikController extends ResponseController
             'broj_putnika' => $brojPutnika,
         ]);
 
+        // Ažuriraj kapacitet nakon kreiranja rezervacije
+        $this->azurirajKapacitet($request->aranzman_id);
+
         return $this->usepsno(new PunikResurs($putnik), 'Putnik je uspešno kreiran.');
     }
 
     public function update(Request $request, $id)
     {
-
         $putnik = \App\Models\Putnici::find($id);
 
         if (!$putnik) {
@@ -70,15 +73,61 @@ class PutnikController extends ResponseController
         }
 
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'user_id' => 'sometimes|exists:users,id|numeric',
-            'aranzman_id' => 'sometimes|exists:aranzmani,id|numeric',
-            'ukupnaCenaAranzmana' => 'sometimes|numeric|min:0',
+            'broj_putnika' => 'sometimes|numeric|min:1',
         ]);
 
         if ($validator->fails()) {
             return $this->neuspesno('Validacija nije uspela.', $validator->errors());
         }
 
+        // Ako se menja broj putnika, treba proveriti kapacitet i ažurirati cenu
+        if ($request->has('broj_putnika')) {
+            $noviBrojPutnika = (int) $request->broj_putnika;
+            $stariBrojPutnika = $putnik->broj_putnika;
+            $razlika = $noviBrojPutnika - $stariBrojPutnika;
+
+            // Ako se povećava broj putnika, proveri da li ima dovoljno mesta
+            if ($razlika > 0) {
+                $kapacitetInfo = $this->dohvatiKapacitetInfo($putnik->aranzman_id);
+                if ($razlika > $kapacitetInfo['dostupno']) {
+                    return $this->neuspesno('Nema dovoljno slobodnih mesta.', [
+                        'dostupno' => $kapacitetInfo['dostupno'],
+                        'potrebno' => $razlika
+                    ]);
+                }
+            }
+
+            // Dohvati aranžman za kalkulaciju cene
+            $aranzman = \App\Models\Aranzman::find($putnik->aranzman_id);
+            if (!$aranzman) {
+                return $this->neuspesno('Aranžman nije pronađen.');
+            }
+
+            // Izračunaj novu cenu
+            $cenaPoOsobi = $this->kalkulatorCene->izracunajCenu($aranzman->cena, $aranzman->popust);
+            $novaCena = $cenaPoOsobi * $noviBrojPutnika;
+
+            // Ažuriraj putnika
+            $putnik->update([
+                'broj_putnika' => $noviBrojPutnika,
+                'ukupnaCenaAranzmana' => $novaCena,
+            ]);
+
+            // Ažuriraj kapacitet
+            $this->azurirajKapacitet($putnik->aranzman_id);
+
+            // Dohvati novo stanje kapaciteta
+            $novoStanje = $this->dohvatiKapacitetInfo($putnik->aranzman_id);
+
+            return $this->usepsno([
+                'putnik' => new PunikResurs($putnik),
+                'kapacitet' => $novoStanje,
+                'razlika_putnika' => $razlika,
+                'nova_cena' => $novaCena
+            ], 'Rezervacija je uspešno ažurirana.');
+        }
+
+        // Standardno ažuriranje ostalih polja
         $putnik->update($request->only(['user_id', 'aranzman_id', 'ukupnaCenaAranzmana']));
 
         return $this->usepsno(new PunikResurs($putnik), 'Putnik je uspešno ažuriran.');
@@ -92,9 +141,66 @@ class PutnikController extends ResponseController
             return $this->neuspesno('Putnik nije pronađen.');
         }
 
+        // Zapamti podatke pre brisanja
+        $aranzmanId = $putnik->aranzman_id;
+        $brojPutnika = $putnik->broj_putnika;
+
+        // Obriši rezervaciju
         $putnik->delete();
 
-        return $this->usepsno([], 'Putnik je uspešno obrisan.');
+        // Ažuriraj dostupni kapacitet aranžmana
+        $this->azurirajKapacitet($aranzmanId);
+
+        return $this->usepsno([
+            'oslobodjena_mesta' => $brojPutnika,
+            'aranzman_id' => $aranzmanId
+        ], 'Rezervacija je uspešno otkazana i kapacitet je ažuriran.');
+    }
+
+    /**
+     * Ažurira dostupni kapacitet aranžmana na osnovu trenutnih rezervacija
+     */
+    private function azurirajKapacitet($aranzmanId): void
+    {
+        $aranzman = \App\Models\Aranzman::find($aranzmanId);
+        
+        if (!$aranzman) {
+            return;
+        }
+
+        // Izračunaj ukupan broj rezervisanih putnika
+        $ukupnoRezervisan = (int) \App\Models\Putnici::where('aranzman_id', $aranzmanId)
+            ->sum('broj_putnika');
+
+        // Izračunaj dostupan kapacitet
+        $dostupanKapacitet = max(0, (int)$aranzman->kapacitet - $ukupnoRezervisan);
+
+        // Log za debugging
+        \Log::info("Kapacitet ažuriran za aranžman {$aranzmanId}: {$dostupanKapacitet}/{$aranzman->kapacitet} dostupno");
+    }
+
+    /**
+     * Dohvata detaljne informacije o kapacitetu aranžmana
+     */
+    private function dohvatiKapacitetInfo($aranzmanId): array
+    {
+        $aranzman = \App\Models\Aranzman::find($aranzmanId);
+        
+        if (!$aranzman) {
+            return ['ukupno' => 0, 'zauzeto' => 0, 'dostupno' => 0];
+        }
+
+        $zauzeto = (int) \App\Models\Putnici::where('aranzman_id', $aranzmanId)
+            ->sum('broj_putnika');
+        
+        $ukupno = (int) $aranzman->kapacitet;
+        $dostupno = max(0, $ukupno - $zauzeto);
+
+        return [
+            'ukupno' => $ukupno,
+            'zauzeto' => $zauzeto, 
+            'dostupno' => $dostupno
+        ];
     }
 
     public function putniciPoAranzmanu(Request $request, $aranzmanId): \Illuminate\Http\JsonResponse
@@ -165,6 +271,31 @@ class PutnikController extends ResponseController
             'broj_putnika' => $count,
         ]);
 
-        return $this->usepsno(['rezervisano' => $count, 'preostalo' => $available - $count], 'Rezervacija uspešna.');
+        // Ažuriraj kapacitet nakon rezervacije
+        $this->azurirajKapacitet($aranzmanId);
+
+        // Izračunaj novo stanje kapaciteta
+        $novoStanje = $this->dohvatiKapacitetInfo($aranzmanId);
+
+        return $this->usepsno([
+            'rezervisano' => $count, 
+            'preostalo' => $novoStanje['dostupno'],
+            'ukupno' => $novoStanje['ukupno'],
+            'zauzeto' => $novoStanje['zauzeto']
+        ], 'Rezervacija uspešna.');
+    }
+
+    /**
+     * Dohvata trenutno stanje kapaciteta za aranžman
+     */
+    public function kapacitet($aranzmanId): \Illuminate\Http\JsonResponse
+    {
+        $info = $this->dohvatiKapacitetInfo($aranzmanId);
+        
+        if ($info['ukupno'] === 0) {
+            return $this->neuspesno('Aranžman nije pronađen.');
+        }
+
+        return $this->usepsno($info, 'Informacije o kapacitetu aranžmana.');
     }
 }
