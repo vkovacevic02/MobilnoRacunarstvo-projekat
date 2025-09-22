@@ -20,8 +20,8 @@ class ApiService {
   }
 
   private setupInterceptors() {
-    // Request interceptor - dodaj token u header
-    this.api.interceptors.request.use(
+    // dodaje token u svaki zahtev (iz async storage)
+      this.api.interceptors.request.use(
       async (config) => {
         const token = await AsyncStorage.getItem('auth_token');
         if (token) {
@@ -34,14 +34,14 @@ class ApiService {
       }
     );
 
-    // Response interceptor - handle errors
+    // odjavljuje korisnika ako je token istekao
+    // ako je unauthorized, briše token i user podatke iz async storage
     this.api.interceptors.response.use(
       (response: AxiosResponse) => {
         return response;
       },
       async (error) => {
         if (error.response?.status === 401) {
-          // Token expired, clear storage and redirect to login
           await AsyncStorage.removeItem('auth_token');
           await AsyncStorage.removeItem('user_data');
         }
@@ -50,7 +50,7 @@ class ApiService {
     );
   }
 
-  // Auth Methods
+  // login - salje post zahtev za login, cuva token i user podatke u async storage
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await this.api.post<ApiResponse<AuthResponse>>(
       API_CONFIG.ENDPOINTS.LOGIN,
@@ -65,16 +65,17 @@ class ApiService {
     return response.data.data;
   }
 
+  // register - salje post zahtev za registraciju, ne cuva token i user podatke
   async register(userData: RegisterRequest): Promise<any> {
     const response = await this.api.post<ApiResponse<any>>(
       API_CONFIG.ENDPOINTS.REGISTER,
       userData
     );
     
-    // Registracija ne vraća token, samo user podatke
     return response.data;
   }
 
+  // logout - salje post zahtev za logout, brise token i user podatke iz async storage
   async logout(): Promise<void> {
     try {
       await this.api.post(API_CONFIG.ENDPOINTS.LOGOUT);
@@ -88,36 +89,26 @@ class ApiService {
     return this.get<ApiResponse<any>>('/user');
   }
 
-  async updateProfile(profileData: any): Promise<ApiResponse<any>> {
-    const response = await this.api.put<ApiResponse<any>>('/user/profile', profileData);
-    return response.data;
-  }
-
-  // Generic GET method
   async get<T>(endpoint: string): Promise<T> {
     const response = await this.api.get<ApiResponse<T>>(endpoint);
     return response.data.data;
   }
 
-  // Generic POST method
   async post<T>(endpoint: string, data?: any): Promise<T> {
     const response = await this.api.post<ApiResponse<T>>(endpoint, data);
     return response.data.data;
   }
 
-  // Generic PUT method
   async put<T>(endpoint: string, data?: any): Promise<T> {
     const response = await this.api.put<ApiResponse<T>>(endpoint, data);
     return response.data.data;
   }
 
-  // Generic DELETE method
   async delete<T>(endpoint: string): Promise<T> {
     const response = await this.api.delete<ApiResponse<T>>(endpoint);
     return response.data.data;
   }
 
-  // Domain methods
   async getPutovanja(): Promise<Putovanje[]> {
     return this.get<Putovanje[]>(API_CONFIG.ENDPOINTS.PUTOVANJA);
   }
@@ -126,7 +117,6 @@ class ApiService {
     return this.get<Aranzman[]>(`${API_CONFIG.ENDPOINTS.ARANZMANI}/${putovanjeId}`);
   }
 
-  // Email Verification Methods
   async verifyEmail(email: string, code: string): Promise<void> {
     await this.post('/verify-email', { 
       email, 
@@ -140,7 +130,6 @@ class ApiService {
     });
   }
 
-  // Password Reset Methods
   async sendPasswordResetEmail(email: string): Promise<{code: string}> {
     return await this.post('/password-reset', { email });
   }
@@ -160,7 +149,6 @@ class ApiService {
     });
   }
 
-  // User specific data
   async getUserBookings(userId: number): Promise<any[]> {
     return this.get<any[]>(`/users/${userId}/putnici`);
   }

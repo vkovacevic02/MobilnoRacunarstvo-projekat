@@ -22,13 +22,6 @@ export const API_CONFIG = {
     // Users
     USERS: '/users',
     PUTNICI: '/putnici',
-    
-    // Payments
-    UPLATE: '/uplate',
-    
-    // Search
-    PRETRAZI_GRADOVE: '/pretrazi-gradove',
-    PRETRAZI_OBLASTI: '/pretrazi-oblasti',
   },
   
   TIMEOUT: 10000, // 10 seconds

@@ -35,7 +35,6 @@ export interface Aranzman {
   putovanje?: Putovanje;
   planAranzmana?: PlanAranzmana[];
   putnici?: Putnik[];
-  uplate?: Uplata[];
 }
 
 export interface PlanAranzmana {
@@ -59,30 +58,12 @@ export interface Putnik {
   aranzman?: Aranzman;
 }
 
-export interface Uplata {
-  id: number;
-  iznos: number;
-  datum: string;
-  status: 'pending' | 'completed' | 'cancelled';
-  user_id: number;
-  aranzman_id: number;
-  user?: User;
-  aranzman?: Aranzman;
-}
 
 // API Response Types
 export interface ApiResponse<T> {
   data: T;
   message?: string;
   success: boolean;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
 }
 
 // Auth Types
@@ -103,7 +84,6 @@ export interface AuthResponse {
   token: string;
 }
 
-// Booking Types
 export interface UserBooking {
   id: number;
   user: User;
@@ -111,19 +91,4 @@ export interface UserBooking {
   datum: string;
   ukupnaCenaAranzmana: number;
   broj_putnika?: number;
-}
-
-export interface UserPayment {
-  id: number;
-  user: User;
-  aranzman: Aranzman;
-  iznos: number;
-  datumUplate: string;
-}
-
-// UI Types
-export interface TabBarIconProps {
-  focused: boolean;
-  color: string;
-  size: number;
 }

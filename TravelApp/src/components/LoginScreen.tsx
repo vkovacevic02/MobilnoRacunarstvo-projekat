@@ -35,7 +35,6 @@ export default function LoginScreen({ onLoginSuccess, onBack, onForgotPassword, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-
   const handleLogin = async () => {
     if (!email || !password) {
       setError('Molimo unesite email i lozinku');
@@ -55,9 +54,6 @@ export default function LoginScreen({ onLoginSuccess, onBack, onForgotPassword, 
       setLoading(false);
     }
   };
-
-
-
 
   return (
     <SafeAreaView style={authStyles.container}>

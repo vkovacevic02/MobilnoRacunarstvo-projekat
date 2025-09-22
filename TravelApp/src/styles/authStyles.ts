@@ -49,7 +49,6 @@ export const authStyles = StyleSheet.create({
   
   subtitle: { fontSize: Sizes.fontSize.md, color: Colors.textSecondary, textAlign: 'center', marginBottom: Sizes.xl, lineHeight: 22 },
   
-  // Sign in container
   signInContainer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: Sizes.lg },
   signInText: { fontSize: Sizes.fontSize.sm, color: Colors.textSecondary },
 });
